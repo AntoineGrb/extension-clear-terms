@@ -1,0 +1,201 @@
+{
+  "schema_version": "1.0",
+  "site": {
+    "domain": "example.com",
+    "name": "Example",
+    "source_url": "https://www.example.com/terms",
+    "detected_language": "en"
+  },
+  "generated_at": "2025-10-05T10:32:00Z",
+  "overall": {
+    "score": 78,
+    "grade": "B",
+    "summary": "Les conditions d'utilisation d'Example présentent une transparence correcte sur la collecte et l’usage des données, mais manquent de précisions sur les durées de conservation et les transferts internationaux."
+  },
+  "categories": [
+    {
+      "id": "c1",
+      "label": "Collecte & minimisation des données",
+      "status": "EVALUATED",
+      "color": "GREEN",
+      "low_confidence": false,
+      "rationale": "Le site énumère clairement les types de données collectées et limite leur usage à des finalités déterminées.",
+      "bullets": [
+        "Liste des données précises : nom, email, historique de navigation sur le site.",
+        "Usage limité à la fourniture du service et à l’amélioration du produit."
+      ],
+      "citations": [
+        {
+          "quote": "We only collect data necessary to provide and improve our services.",
+          "section_hint": "Data Collection"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "label": "Partage/vente à des tiers & publicité/trackers",
+      "status": "EVALUATED",
+      "color": "AMBER",
+      "low_confidence": false,
+      "rationale": "Certaines données peuvent être partagées avec des partenaires publicitaires, sans mécanisme clair d’opposition.",
+      "bullets": [
+        "Partenaires marketing mentionnés sans liste exhaustive.",
+        "Absence de bouton ou lien clair pour désactiver le partage."
+      ],
+      "citations": [
+        {
+          "quote": "We may share certain information with advertising partners.",
+          "section_hint": "Third-party sharing"
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "label": "Droits utilisateur (accès, rectification, suppression, portabilité)",
+      "status": "EVALUATED",
+      "color": "GREEN",
+      "low_confidence": false,
+      "rationale": "Les droits RGPD sont décrits de façon détaillée avec des instructions claires pour contacter le support.",
+      "bullets": [
+        "Formulaire de demande de suppression disponible.",
+        "Réponse promise sous 30 jours."
+      ],
+      "citations": [
+        {
+          "quote": "You can request deletion or correction of your data via our privacy form.",
+          "section_hint": "User Rights"
+        }
+      ]
+    },
+    {
+      "id": "c4",
+      "label": "Suppression & conservation",
+      "status": "EVALUATED",
+      "color": "AMBER",
+      "low_confidence": false,
+      "rationale": "Les durées de conservation sont indiquées de manière floue et sans engagement précis.",
+      "bullets": [
+        "Données conservées 'aussi longtemps que nécessaire'.",
+        "Aucune durée maximale par type de donnée."
+      ],
+      "citations": [
+        {
+          "quote": "We retain data as long as necessary to fulfill our purposes.",
+          "section_hint": "Retention"
+        }
+      ]
+    },
+    {
+      "id": "c5",
+      "label": "Sécurité & notification d’incident",
+      "status": "EVALUATED",
+      "color": "GREEN",
+      "low_confidence": false,
+      "rationale": "Des mesures de sécurité standard sont décrites, avec engagement de notification en cas de violation.",
+      "bullets": [
+        "Chiffrement TLS, contrôle d’accès interne.",
+        "Notification des incidents sous 72h."
+      ],
+      "citations": [
+        {
+          "quote": "We use encryption and notify users within 72 hours of a data breach.",
+          "section_hint": "Security"
+        }
+      ]
+    },
+    {
+      "id": "c6",
+      "label": "Transferts internationaux / conformité RGPD",
+      "status": "EVALUATED",
+      "color": "AMBER",
+      "low_confidence": false,
+      "rationale": "Des transferts vers les États-Unis sont possibles, mais la base légale n’est pas précisée.",
+      "bullets": [
+        "Utilisation de services tiers américains (AWS, Google).",
+        "Aucune mention explicite de clauses contractuelles types."
+      ],
+      "citations": [
+        {
+          "quote": "Some data may be processed in the United States by our partners.",
+          "section_hint": "International Transfers"
+        }
+      ]
+    },
+    {
+      "id": "c7",
+      "label": "Propriété & licence sur le contenu utilisateur",
+      "status": "EVALUATED",
+      "color": "GREEN",
+      "low_confidence": false,
+      "rationale": "La licence accordée par l’utilisateur est limitée à l’usage interne et non transférable.",
+      "bullets": [
+        "Aucune sous-licence à des tiers.",
+        "Droits conservés par l’utilisateur sur son contenu."
+      ],
+      "citations": [
+        {
+          "quote": "You retain ownership of your content.",
+          "section_hint": "User Content"
+        }
+      ]
+    },
+    {
+      "id": "c8",
+      "label": "Modifications unilatérales des CGU & notification",
+      "status": "EVALUATED",
+      "color": "AMBER",
+      "low_confidence": false,
+      "rationale": "Les changements peuvent être faits sans notification directe aux utilisateurs.",
+      "bullets": [
+        "Mention 'nous pouvons modifier ces conditions à tout moment'.",
+        "Aucune notification email prévue."
+      ],
+      "citations": [
+        {
+          "quote": "We may change these terms at any time by posting an updated version.",
+          "section_hint": "Changes to Terms"
+        }
+      ]
+    },
+    {
+      "id": "c9",
+      "label": "Clauses de limitation de recours / arbitrage",
+      "status": "EVALUATED",
+      "color": "RED",
+      "low_confidence": false,
+      "rationale": "L’utilisateur doit accepter un arbitrage obligatoire aux États-Unis et renonce à toute action collective.",
+      "bullets": [
+        "Arbitrage individuel obligatoire.",
+        "Renonciation explicite aux actions collectives."
+      ],
+      "citations": [
+        {
+          "quote": "All disputes will be resolved through binding arbitration in California.",
+          "section_hint": "Dispute Resolution"
+        }
+      ]
+    },
+    {
+      "id": "c10",
+      "label": "Abonnements, résiliation, remboursements",
+      "status": "EVALUATED",
+      "color": "GREEN",
+      "low_confidence": false,
+      "rationale": "Politique de résiliation simple et remboursement au prorata pour les abonnements annuels.",
+      "bullets": [
+        "Résiliation possible à tout moment via le compte.",
+        "Remboursement au prorata si plus de 6 mois restants."
+      ],
+      "citations": [
+        {
+          "quote": "You may cancel your subscription at any time and receive a prorated refund.",
+          "section_hint": "Subscriptions"
+        }
+      ]
+    }
+  ],
+  "limits": {
+    "missing_sections": [],
+    "notes": "Certaines informations sur les transferts internationaux manquent de clarté."
+  }
+}
