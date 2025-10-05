@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Test Gemini API",
+  "version": "1.0.0",
+  "description": "Extension simple pour tester l'API Gemini 2.0 Flash",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "32": "icon/icon32.png",
+      "64": "icon/icon64.png",
+      "128": "icon/icon128.png"
+    }
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ]
+}
