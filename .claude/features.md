@@ -35,7 +35,7 @@
 - [ ] Script d’analyse DOM (liens et modales)
 - [ ] Heuristiques internationales (terms|privacy|cgu…)
 - [ ] Création du toast (Shadow DOM, Tailwind)
-- [ ] Personnalisation du toast dans les paramètres (activation, emplacement...)
+- [ ] Personnalisation du toast dans les paramètres (activation, emplacement, durée...)
 - [ ] Workflow "analyse en cours" → "rapport disponible"
 - [ ] Gestion des jobs en arrière-plan
 - [ ] Gestion des erreurs IA ou réseau
@@ -55,7 +55,7 @@
 - [ ] Recherche / tri (domaine, score, date)
 - [ ] Export / import JSON
 - [ ] Synchronisation avec `chrome.storage.local`
-- [ ] Terms of service (disclaimer juridique, utilisation des données...)
+- [ ] Personnalisation apparition toast 1 fois ou plus par rapport
 
 ---
 

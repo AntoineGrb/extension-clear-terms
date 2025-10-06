@@ -9,7 +9,7 @@ const translations = {
     headerSubtitle: "Analyse IA des CGU et Politiques de Confidentialité",
 
     // Boutons principaux
-    analyzeButton: "Analyser cette page",
+    analyzeButton: "Analyser la page active",
 
     // Messages de statut
     statusExtracting: "Extraction du contenu de la page...",
@@ -17,6 +17,7 @@ const translations = {
     statusAnalyzing: "Analyse en cours par l'IA...",
     statusComplete: "Analyse terminée !",
     statusError: "Erreur :",
+    notCGUPage: "Cette page ne contient pas de conditions générales ou de mentions légales analysables.",
 
     // Rapport
     analyzedOn: "Analysé le",
@@ -46,7 +47,9 @@ const translations = {
     // Paramètres
     settings: "Paramètres",
     languageLabel: "Langue de l'interface et des rapports",
-    languageHelp: "Les nouveaux rapports seront générés dans cette langue",
+    languageHelp: "Les rapports seront générés dans cette langue",
+    toastEnabled: "Activer la détection automatique",
+    toastEnabledHelp: "Affiche un toast lorsque des CGU sont détectées sur une page",
 
     // Page À propos
     aboutContent: {
@@ -150,7 +153,7 @@ const translations = {
     headerSubtitle: "AI Analysis of Terms and Privacy Policies",
 
     // Main buttons
-    analyzeButton: "Analyze this page",
+    analyzeButton: "Analyze active page",
 
     // Status messages
     statusExtracting: "Extracting page content...",
@@ -158,6 +161,7 @@ const translations = {
     statusAnalyzing: "AI analysis in progress...",
     statusComplete: "Analysis complete!",
     statusError: "Error:",
+    notCGUPage: "This page does not contain analyzable terms of service or legal notices.",
 
     // Report
     analyzedOn: "Analyzed on",
@@ -187,7 +191,9 @@ const translations = {
     // Settings
     settings: "Settings",
     languageLabel: "Interface and report language",
-    languageHelp: "New reports will be generated in this language",
+    languageHelp: "Reports will be generated in this language",
+    toastEnabled: "Enable automatic detection",
+    toastEnabledHelp: "Shows a toast when Terms are detected on a page",
 
     // About page
     aboutContent: {

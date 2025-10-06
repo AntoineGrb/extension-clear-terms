@@ -56,11 +56,11 @@ async function loadSchema() {
 
 /**
  * Nettoie le texte extrait (supprime espaces multiples, lignes vides, etc.)
+ * IMPORTANT: Doit être identique à extractCleanContent() du content-script
  */
 function cleanText(text) {
   return text
     .replace(/\s+/g, ' ')
-    .replace(/\n\s*\n/g, '\n')
     .trim();
 }
 
