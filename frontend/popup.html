@@ -50,6 +50,16 @@
 
       <!-- Contenu dépliable -->
       <div id="reportContent" class="hidden px-4 pb-4">
+        <!-- URL analysée -->
+        <div class="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-gray-100">
+          <div id="analyzedUrl" class="text-[10px] text-gray-500 truncate flex-1">-</div>
+          <button id="copyUrlButton" class="text-gray-400 hover:text-primary-600 transition-colors flex-shrink-0" title="Copier l'URL">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+        </div>
+
         <div id="categoriesList" class="flex flex-col gap-2"></div>
         <div class="mt-4 text-center text-[10px] text-gray-400 leading-snug" data-i18n="disclaimer">
         ⚠️ Clear Terms fournit un résumé non-juridique. Consultez toujours le texte original. Les analyses IA peuvent contenir des erreurs.
@@ -288,7 +298,13 @@
     </div>
   </div>
 
+  <!-- Scripts chargés dans l'ordre : dépendances d'abord -->
   <script src="i18n.js"></script>
+  <script src="utils/hash.js"></script>
+  <script src="utils/grading.js"></script>
+  <script src="utils/translations.js"></script>
+  <script src="services/api-client.js"></script>
+  <script src="services/report-display.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -1,0 +1,45 @@
+// ========================================
+// EXTRACTION DE CONTENU (partagée auto + manuel)
+// ========================================
+
+/**
+ * Extrait le contenu nettoyé de la page
+ * Utilisé pour scan auto ET manuel (garantit le même hash)
+ * IMPORTANT: Utilise textContent (pas innerText) pour cohérence
+ */
+function extractCleanContent() {
+  try {
+    // Clone le document
+    const clone = document.cloneNode(true);
+
+    // Vérifier que le clone a un body
+    if (!clone.body) {
+      console.error('[Clear Terms] Erreur: clone.body est null');
+      return {
+        text: document.body ? (document.body.textContent || '') : '',
+        url: window.location.href
+      };
+    }
+
+    // Supprimer les éléments inutiles (même logique que popup.js)
+    const elementsToRemove = clone.querySelectorAll('script, style, nav, header, footer, aside');
+    elementsToRemove.forEach(el => el.remove());
+
+    // Extraire le texte avec textContent (plus stable que innerText)
+    const text = clone.body.textContent || '';
+
+    // Nettoyer les espaces multiples et sauts de ligne excessifs
+    const cleanedText = text.replace(/\s+/g, ' ').trim();
+
+    return {
+      text: cleanedText,
+      url: window.location.href
+    };
+  } catch (error) {
+    console.error('[Clear Terms] Erreur dans extractCleanContent:', error);
+    return {
+      text: document.body ? (document.body.textContent || '').replace(/\s+/g, ' ').trim() : '',
+      url: window.location.href
+    };
+  }
+}

@@ -24,22 +24,26 @@
 
 ---
 
-## 🧭 V2 — Détection automatique + toast
+## 🧭 V2 — Détection automatique + toast ✅ TERMINÉE
 
 ### Objectifs
 - Détecter automatiquement la présence de CGU
 - Alerter via un toast rapide
-- Déclencher l’analyse ou ouvrir le rapport cache
+- Déclencher l'analyse ou ouvrir le rapport cache
 
 ### Actions
-- [ ] Script d’analyse DOM (liens et modales)
-- [ ] Heuristiques internationales (terms|privacy|cgu…)
-- [ ] Création du toast (Shadow DOM, Tailwind)
-- [ ] Personnalisation du toast dans les paramètres (activation, emplacement, durée...)
-- [ ] Workflow "analyse en cours" → "rapport disponible"
-- [ ] Gestion des jobs en arrière-plan
-- [ ] Gestion des erreurs IA ou réseau
-- [ ] Vérifier qu'on est bien sur des CGs sur l'analyse manuelle.
+- [x] Script d'analyse DOM avec détection à deux niveaux (filtre léger + validation approfondie)
+- [x] Heuristiques internationales (terms|privacy|cgu…) FR/EN
+- [x] Création du toast (Shadow DOM, Tailwind) avec traductions
+- [x] Personnalisation du toast dans les paramètres (activation on/off)
+- [x] Workflow "analyse en cours" → "rapport disponible" en arrière-plan
+- [x] Gestion des jobs en arrière-plan (background.js avec polling)
+- [x] Gestion des erreurs IA ou réseau avec messages explicites
+- [x] Vérification CGU sur l'analyse manuelle (même validation que l'auto)
+- [x] Exclusion des moteurs de recherche et pages navigables
+- [x] Harmonisation extraction contenu (même hash auto/manuel)
+- [x] Affichage URL analysée dans le rapport + copie presse-papier
+- [x] **Refactoring code V2** : Backend (utils/, services/) + Frontend (utils/, services/, content-script/)
 
 ---
 
