@@ -388,12 +388,30 @@ function showMainPage() {
 }
 
 /**
+ * Détecte la langue du navigateur
+ */
+function detectBrowserLanguage() {
+  const browserLang = navigator.language || navigator.userLanguage;
+  // Extraire le code langue (ex: "en-US" -> "en", "fr-FR" -> "fr")
+  const langCode = browserLang.split('-')[0].toLowerCase();
+
+  // Retourner 'fr' ou 'en', défaut 'en' si non supporté
+  return ['fr', 'en'].includes(langCode) ? langCode : 'en';
+}
+
+/**
  * Charge la préférence de langue
  */
 async function loadLanguagePreference() {
   return new Promise((resolve) => {
     chrome.storage.local.get(['userLanguage'], (result) => {
-      resolve(result.userLanguage || 'fr'); // Défaut : français
+      // Si pas de préférence sauvegardée, utiliser la langue du navigateur
+      if (!result.userLanguage) {
+        const detectedLang = detectBrowserLanguage();
+        resolve(detectedLang);
+      } else {
+        resolve(result.userLanguage);
+      }
     });
   });
 }
@@ -456,8 +474,17 @@ document.getElementById('backFromTerms').addEventListener('click', () => {
 
 // Charger le dernier rapport et la langue au démarrage
 chrome.storage.local.get(['lastReport', 'userLanguage'], (result) => {
-  // Définir la langue sélectionnée
-  const lang = result.userLanguage || 'fr';
+  // Définir la langue (préférence utilisateur ou détection navigateur)
+  let lang;
+  if (result.userLanguage) {
+    lang = result.userLanguage;
+  } else {
+    // Première utilisation : détecter la langue du navigateur
+    lang = detectBrowserLanguage();
+    // Sauvegarder cette détection comme préférence initiale
+    saveLanguagePreference(lang);
+  }
+
   document.getElementById('languageSelect').value = lang;
 
   // Appliquer les traductions
