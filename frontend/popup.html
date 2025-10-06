@@ -3,73 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Gemini API</title>
-  <style>
-    body {
-      width: 400px;
-      padding: 20px;
-      font-family: Arial, sans-serif;
-    }
-
-    h1 {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      margin-bottom: 15px;
-    }
-
-    button:hover {
-      background-color: #357ae8;
-    }
-
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    #response {
-      margin-top: 15px;
-      padding: 15px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-      min-height: 80px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .loading {
-      color: #666;
-      font-style: italic;
-    }
-
-    .error {
-      color: #d32f2f;
-    }
-
-    .success {
-      color: #2e7d32;
-    }
-  </style>
+  <title>Clear Terms</title>
+  <link rel="stylesheet" href="output.css">
 </head>
-<body>
-  <h1>Test API Gemini 2.0 Flash</h1>
+<body class="w-[380px] h-[600px] bg-gray-50 overflow-hidden flex flex-col">
+  <!-- Header -->
+  <div class="bg-gradient-to-br from-primary-500 to-secondary-500 text-white py-5 px-5 text-center flex-shrink-0">
+    <h1 class="text-xl font-semibold mb-1">Clear Terms</h1>
+    <p class="text-xs opacity-90">Analyse IA des CGU et Politiques de Confidentialité</p>
+  </div>
 
-  <button id="testButton">Envoyer requête test à Gemini</button>
+  <!-- Container avec scroll (overflow-y-scroll pour toujours afficher le scroll) -->
+  <div class="flex-1 overflow-y-scroll px-4 py-4 scrollbar-thin">
+    <!-- Section Scan -->
+    <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+      <button id="scanButton" class="w-full py-3.5 px-4 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 text-white rounded-md font-medium text-sm transition-colors">
+        Analyser cette page
+      </button>
+      <div id="status"></div>
+    </div>
 
-  <div id="response"></div>
+    <!-- Section Rapport (accordéon) -->
+    <div id="reportSection" class="bg-white rounded-lg shadow-sm hidden">
+      <!-- Header cliquable -->
+      <button id="reportToggle" class="w-full p-4 text-left hover:bg-gray-50 transition-colors rounded-lg">
+        <div class="flex justify-between items-start mb-3 pb-3 border-b border-gray-200">
+          <div class="flex-1 min-w-0">
+            <h2 id="siteName" class="text-base font-semibold text-gray-900 truncate">-</h2>
+            <div id="analysisDate" class="text-xs text-gray-400 mt-1">-</div>
+          </div>
+          <div id="grade" class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ml-3 flex-shrink-0">-</div>
+        </div>
+
+        <div id="badges" class="flex gap-2 justify-center"></div>
+      </button>
+
+      <!-- Contenu dépliable -->
+      <div id="reportContent" class="hidden px-4 pb-4">
+        <div id="categoriesList" class="flex flex-col gap-2"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-4 py-3 text-xs text-gray-500">
+      <div class="text-[10px] text-gray-400 leading-snug">
+        ⚠️ Clear Terms fournit un résumé non-juridique. Consultez toujours le texte original. Les analyses IA peuvent contenir des erreurs.
+      </div>
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
