@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Test Gemini API",
-  "version": "1.0.0",
-  "description": "Extension simple pour tester l'API Gemini 2.0 Flash",
+  "name": "Clear Terms",
+  "version": "0.1.0",
+  "description": "Analysez automatiquement les CGU et Politiques de Confidentialité avec l'IA",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -11,10 +11,17 @@
       "128": "icon/icon128.png"
     }
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "http://*/*",
+    "https://*/*"
   ]
 }

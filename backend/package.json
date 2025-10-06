@@ -1,10 +1,11 @@
 {
-  "name": "gemini-test-backend",
-  "version": "1.0.0",
-  "description": "Backend simple pour tester l'API Gemini 2.0 Flash",
+  "name": "clear-terms-backend",
+  "version": "0.1.0",
+  "description": "Backend pour Clear Terms - Analyse automatique des CGU et Politiques de Confidentialité",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

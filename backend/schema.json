@@ -1,61 +1,87 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Clear Terms Report",
   "type": "object",
-  "required": ["schema_version", "site", "generated_at", "overall", "categories"],
+  "required": ["site_name", "categories", "detected_language"],
   "properties": {
-    "schema_version": { "type": "string", "enum": ["1.0"] },
-    "site": {
-      "type": "object",
-      "required": ["domain", "name", "source_url", "detected_language"],
-      "properties": {
-        "domain": { "type": "string" },
-        "name": { "type": "string" },
-        "source_url": { "type": "string" },
-        "detected_language": { "type": "string" }
-      }
+    "site_name": {
+      "type": "string",
+      "description": "Nom du site ou service analysé (ex: Google, Facebook, Amazon)"
     },
-    "generated_at": { "type": "string", "format": "date-time" },
-    "overall": {
-      "type": "object",
-      "required": ["score", "grade", "summary"],
-      "properties": {
-        "score": { "type": "number", "minimum": 0, "maximum": 100 },
-        "grade": { "type": "string", "enum": ["A", "B", "C", "D", "E"] },
-        "summary": { "type": "string" }
-      }
+    "detected_language": {
+      "type": "string",
+      "enum": ["fr", "en"],
+      "description": "Langue détectée des CGU analysées (fr = français, en = anglais)"
     },
     "categories": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "label", "status", "color", "rationale"],
-        "properties": {
-          "id": { "type": "string" },
-          "label": { "type": "string" },
-          "status": { "type": "string", "enum": ["EVALUATED", "NA"] },
-          "color": { "type": "string", "enum": ["GREEN", "AMBER", "RED"] },
-          "low_confidence": { "type": "boolean" },
-          "rationale": { "type": "string" },
-          "bullets": { "type": "array", "items": { "type": "string" } },
-          "citations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "quote": { "type": "string" },
-                "section_hint": { "type": "string" }
-              }
-            }
-          }
+      "type": "object",
+      "required": [
+        "data_collection",
+        "data_usage",
+        "data_sharing",
+        "user_rights",
+        "data_retention",
+        "security_measures",
+        "policy_changes",
+        "legal_compliance",
+        "cookies_tracking",
+        "children_privacy",
+        "user_content_rights",
+        "dispute_resolution"
+      ],
+      "properties": {
+        "data_collection": {
+          "$ref": "#/definitions/category"
+        },
+        "data_usage": {
+          "$ref": "#/definitions/category"
+        },
+        "data_sharing": {
+          "$ref": "#/definitions/category"
+        },
+        "user_rights": {
+          "$ref": "#/definitions/category"
+        },
+        "data_retention": {
+          "$ref": "#/definitions/category"
+        },
+        "security_measures": {
+          "$ref": "#/definitions/category"
+        },
+        "policy_changes": {
+          "$ref": "#/definitions/category"
+        },
+        "legal_compliance": {
+          "$ref": "#/definitions/category"
+        },
+        "cookies_tracking": {
+          "$ref": "#/definitions/category"
+        },
+        "children_privacy": {
+          "$ref": "#/definitions/category"
+        },
+        "user_content_rights": {
+          "$ref": "#/definitions/category"
+        },
+        "dispute_resolution": {
+          "$ref": "#/definitions/category"
         }
       }
-    },
-    "limits": {
+    }
+  },
+  "definitions": {
+    "category": {
       "type": "object",
+      "required": ["status", "comment"],
       "properties": {
-        "missing_sections": { "type": "array", "items": { "type": "string" } },
-        "notes": { "type": "string" }
+        "status": {
+          "type": "string",
+          "enum": ["green", "amber", "red", "n/a"],
+          "description": "green = favorable, amber = acceptable avec réserves, red = préoccupant, n/a = non mentionné"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Explication courte (1-2 phrases) de l'évaluation"
+        }
       }
     }
   }
