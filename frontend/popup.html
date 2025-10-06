@@ -7,17 +7,24 @@
   <link rel="stylesheet" href="output.css">
 </head>
 <body class="w-[380px] h-[600px] bg-gray-50 overflow-hidden flex flex-col">
+  <!-- Page principale -->
   <!-- Header -->
-  <div class="bg-gradient-to-br from-primary-500 to-secondary-500 text-white py-5 px-5 text-center flex-shrink-0">
-    <h1 class="text-xl font-semibold mb-1">Clear Terms</h1>
-    <p class="text-xs opacity-90">Analyse IA des CGU et Politiques de Confidentialité</p>
+  <div class="bg-gradient-to-br from-primary-500 to-secondary-500 text-white py-5 px-5 text-center flex-shrink-0 relative">
+    <h1 class="text-xl font-semibold mb-1" data-i18n="headerTitle">Clear Terms</h1>
+    <p class="text-xs opacity-90" data-i18n="headerSubtitle">Analyse IA des CGU et Politiques de Confidentialité</p>
+    <button id="settingsButton" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors" data-i18n-title="settings">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </button>
   </div>
 
   <!-- Container avec scroll (overflow-y-scroll pour toujours afficher le scroll) -->
-  <div class="flex-1 overflow-y-scroll px-4 py-4 scrollbar-thin">
+  <div id="mainPage" class="flex-1 overflow-y-scroll px-4 py-4 scrollbar-thin">
     <!-- Section Scan -->
     <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
-      <button id="scanButton" class="w-full py-3.5 px-4 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 text-white rounded-md font-medium text-sm transition-colors">
+      <button id="scanButton" class="w-full py-3.5 px-4 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-300 text-white rounded-md font-medium text-sm transition-colors" data-i18n="analyzeButton">
         Analyser cette page
       </button>
       <div id="status"></div>
@@ -28,11 +35,14 @@
       <!-- Header cliquable -->
       <button id="reportToggle" class="w-full p-4 text-left hover:bg-gray-50 transition-colors rounded-lg">
         <div class="flex justify-between items-start mb-3 pb-3 border-b border-gray-200">
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 mr-3">
             <h2 id="siteName" class="text-base font-semibold text-gray-900 truncate">-</h2>
             <div id="analysisDate" class="text-xs text-gray-400 mt-1">-</div>
           </div>
-          <div id="grade" class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ml-3 flex-shrink-0">-</div>
+          <div class="flex-shrink-0 text-center">
+            <div id="grade" class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white">-</div>
+            <div class="text-[9px] text-gray-400 mt-0.5 uppercase tracking-wide">Score</div>
+          </div>
         </div>
 
         <div id="badges" class="flex gap-2 justify-center"></div>
@@ -41,17 +51,232 @@
       <!-- Contenu dépliable -->
       <div id="reportContent" class="hidden px-4 pb-4">
         <div id="categoriesList" class="flex flex-col gap-2"></div>
+        <div class="mt-4 text-center text-[10px] text-gray-400 leading-snug" data-i18n="disclaimer">
+        ⚠️ Clear Terms fournit un résumé non-juridique. Consultez toujours le texte original. Les analyses IA peuvent contenir des erreurs.
+        </div>
       </div>
     </div>
 
     <!-- Footer -->
-    <div class="text-center mt-4 py-3 text-xs text-gray-500">
-      <div class="text-[10px] text-gray-400 leading-snug">
-        ⚠️ Clear Terms fournit un résumé non-juridique. Consultez toujours le texte original. Les analyses IA peuvent contenir des erreurs.
+    <div class="mt-6 pt-4 border-t border-gray-200">
+      <div class="flex justify-center gap-6 text-xs mb-3">
+        <button id="aboutButton" class="text-primary-600 hover:text-primary-700 font-medium transition-colors" data-i18n="about">À propos</button>
+        <button id="termsButton" class="text-primary-600 hover:text-primary-700 font-medium transition-colors" data-i18n="terms">Conditions de Service</button>
       </div>
     </div>
   </div>
 
+  <!-- Page Paramètres (cachée par défaut) -->
+  <div id="settingsPage" class="flex-1 overflow-y-scroll px-4 py-4 scrollbar-thin hidden">
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <div class="flex items-center mb-4">
+        <button id="backButton" class="mr-3 text-gray-600 hover:text-gray-900 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold text-gray-900" data-i18n="settings">Paramètres</h2>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label for="languageSelect" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="languageLabel">
+            Langue de l'interface et des rapports
+          </label>
+          <select id="languageSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+          </select>
+          <p class="mt-1 text-xs text-gray-500" data-i18n="languageHelp">
+            Les rapports seront générés dans cette langue
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page À propos (cachée par défaut) -->
+  <div id="aboutPage" class="flex-1 overflow-y-scroll px-4 py-4 scrollbar-thin hidden">
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <div class="flex items-center mb-4">
+        <button id="backFromAbout" class="mr-3 text-gray-600 hover:text-gray-900 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold text-gray-900" data-i18n="aboutContent.title">À propos</h2>
+      </div>
+
+      <div class="prose prose-sm max-w-none space-y-4">
+        <section>
+          <h3 class="text-base font-semibold text-gray-900 mb-2" data-i18n="aboutContent.missionTitle">🎯 Notre mission</h3>
+          <p class="text-sm text-gray-700 leading-relaxed" data-i18n="aboutContent.missionText">
+            Clear Terms aide les utilisateurs à comprendre rapidement les Conditions Générales d'Utilisation et Politiques de Confidentialité des services en ligne. Notre IA analyse le contenu et identifie les points importants pour vous permettre de prendre des décisions éclairées.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base font-semibold text-gray-900 mb-2" data-i18n="aboutContent.howItWorksTitle">📊 Comment ça marche ?</h3>
+          <p class="text-sm text-gray-700 leading-relaxed" data-i18n="aboutContent.howItWorksText1">
+            Nous utilisons l'IA (Google Gemini) pour analyser automatiquement 12 catégories clés : collecte de données, partage avec des tiers, droits utilisateur, mesures de sécurité, et bien plus.
+          </p>
+          <p class="text-sm text-gray-700 leading-relaxed mt-2" data-i18n="aboutContent.howItWorksText2">
+            Chaque catégorie reçoit un statut basé sur son impact pour l'utilisateur :
+          </p>
+          <ul class="text-sm text-gray-700 space-y-1 mt-2">
+            <li data-i18n="aboutContent.statusGreen"><span class="text-emerald-600 font-medium">🟢 Vert</span> : Favorable pour l'utilisateur</li>
+            <li data-i18n="aboutContent.statusAmber"><span class="text-amber-600 font-medium">🟡 Ambre</span> : Acceptable avec réserves</li>
+            <li data-i18n="aboutContent.statusRed"><span class="text-red-600 font-medium">🔴 Rouge</span> : Préoccupant</li>
+            <li data-i18n="aboutContent.statusNA"><span class="text-gray-500 font-medium">⚪ N/A</span> : Non mentionné dans le document</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-base font-semibold text-gray-900 mb-2" data-i18n="aboutContent.scoreTitle">🎯 Calcul du score</h3>
+          <p class="text-sm text-gray-700 leading-relaxed" data-i18n="aboutContent.scoreText">
+            Le score global (A-E) est calculé en pondérant les catégories : chaque statut vert compte pour 2 points, ambre pour 1 point, rouge pour 0. Les catégories N/A ne sont pas prises en compte dans le calcul.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base font-semibold text-gray-900 mb-2" data-i18n="aboutContent.privacyTitle">🔒 Confidentialité</h3>
+          <p class="text-sm text-gray-700 leading-relaxed" data-i18n="aboutContent.privacyText">
+            Vos données ne sont jamais stockées de manière identifiable. L'analyse est effectuée en temps réel et les résultats sont mis en cache anonymement (par hash du contenu) pour optimiser les performances et réduire les coûts.
+          </p>
+        </section>
+
+        <section>
+          <h3 class="text-base font-semibold text-gray-900 mb-2" data-i18n="aboutContent.limitationsTitle">⚠️ Limitations importantes</h3>
+          <p class="text-sm text-gray-700 leading-relaxed" data-i18n="aboutContent.limitationsText">
+            Clear Terms n'est pas un conseil juridique et ne remplace pas l'avis d'un avocat qualifié. Les analyses peuvent contenir des erreurs ou des imprécisions. Consultez toujours le texte original et, si nécessaire, un professionnel du droit.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Conditions de Service (cachée par défaut) -->
+  <div id="termsPage" class="flex-1 overflow-y-scroll px-4 py-4 scrollbar-thin hidden">
+    <div class="bg-white rounded-lg p-4 shadow-sm">
+      <div class="flex items-center mb-4">
+        <button id="backFromTerms" class="mr-3 text-gray-600 hover:text-gray-900 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <h2 class="text-lg font-semibold text-gray-900" data-i18n="termsContent.title">Conditions de Service</h2>
+      </div>
+
+      <div class="prose prose-sm max-w-none space-y-4 text-xs text-gray-700">
+        <p class="text-gray-500 italic" data-i18n="termsContent.effectiveDate">Date d'effet : 6 octobre 2025</p>
+
+        <p data-i18n="termsContent.intro">Bienvenue sur Clear Terms — un outil conçu pour aider les utilisateurs à mieux comprendre les conditions d'utilisation et politiques de confidentialité des services numériques. En installant ou en utilisant l'extension Clear Terms, vous acceptez d'être lié par les présentes Conditions de Service.</p>
+        <p data-i18n="termsContent.pleaseRead">Veuillez les lire attentivement.</p>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section1Title">1. Présentation</h3>
+          <p data-i18n="termsContent.section1Text">Clear Terms est un outil qui identifie les clauses clés et les risques couramment présents dans les conditions d'utilisation et politiques de confidentialité en ligne. Il fournit des résumés, des évaluations de risque et des analyses basées sur des documents publics et notre analyse interne. Nous nous efforçons d'aider les utilisateurs à prendre des décisions éclairées, mais nous ne pouvons garantir l'exhaustivité ou l'exactitude juridique dans tous les contextes.</p>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section2Title">2. Absence de conseil juridique</h3>
+          <p data-i18n="termsContent.section2Text">Clear Terms n'est pas un cabinet d'avocats, et les informations fournies via l'extension ne constituent pas un conseil juridique.</p>
+          <p data-i18n="termsContent.section2Intro">Vous comprenez et acceptez que :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section2Item1">Clear Terms ne remplace pas la consultation d'un avocat qualifié.</li>
+            <li data-i18n="termsContent.section2Item2">Les alertes, exemples et résumés que nous fournissons sont uniquement informatifs et peuvent ne pas s'appliquer à votre situation spécifique.</li>
+            <li data-i18n="termsContent.section2Item3">Si vous avez besoin de conseils juridiques ou d'une représentation légale, vous devez contacter un avocat agréé dans votre juridiction.</li>
+            <li data-i18n="termsContent.section2Item4">L'utilisation de Clear Terms ne crée pas de relation avocat-client.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section3Title">3. Comptes utilisateur et données</h3>
+          <p data-i18n="termsContent.section3Text">Nous collectons uniquement le minimum de données nécessaire pour fournir le service. Actuellement, aucune donnée personnelle identifiable n'est collectée. Les analyses sont mises en cache de manière anonyme (par hash du contenu) pour améliorer les performances. Ces données ne sont jamais vendues ou partagées avec des tiers.</p>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section4Title">4. Exactitude et limitations</h3>
+          <p data-i18n="termsContent.section4Intro">Bien que nous visions à fournir des informations précises et à jour :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section4Item1">Nous ne garantissons pas l'exhaustivité, l'exactitude ou la force exécutoire juridique de tout résumé ou évaluation de risque fourni.</li>
+            <li data-i18n="termsContent.section4Item2">Les conditions d'utilisation changent fréquemment, et notre base de données peut ne pas toujours refléter la version la plus récente d'une politique donnée.</li>
+            <li data-i18n="termsContent.section4Item3">Notre analyse est basée sur des processus de révision automatisés et manuels, qui peuvent avoir des limitations ou des cas particuliers.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section5Title">5. Propriété intellectuelle</h3>
+          <p data-i18n="termsContent.section5Text">Le nom Clear Terms, le logo, le logiciel et le contenu original sont la propriété intellectuelle de ses créateurs. Vous ne pouvez pas :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section5Item1">Faire de la rétro-ingénierie ou réutiliser l'extension</li>
+            <li data-i18n="termsContent.section5Item2">Revendre ou distribuer notre analyse sans permission</li>
+            <li data-i18n="termsContent.section5Item3">Présenter nos résumés comme des avis juridiques</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section6Title">6. Conduite de l'utilisateur</h3>
+          <p data-i18n="termsContent.section6Text">Vous acceptez de ne pas :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section6Item1">Utiliser l'extension de manière abusive pour du scraping, de l'automation ou du spam</li>
+            <li data-i18n="termsContent.section6Item2">Tenter de modifier le comportement de l'extension</li>
+            <li data-i18n="termsContent.section6Item3">Prétendre que les informations fournies par Clear Terms constituent une autorité juridique</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section7Title">7. Résiliation</h3>
+          <p data-i18n="termsContent.section7Text">Nous nous réservons le droit de suspendre ou de résilier votre accès à l'extension si :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section7Item1">Vous violez ces conditions</li>
+            <li data-i18n="termsContent.section7Item2">Vous utilisez l'extension d'une manière qui nuit à autrui, viole la loi ou compromet l'intégrité du service</li>
+          </ul>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section8Title">8. Exclusion de garanties</h3>
+          <p data-i18n="termsContent.section8Text">L'extension Clear Terms est fournie "en l'état" et "selon disponibilité" sans garanties d'aucune sorte. Nous déclinons toutes garanties expresses ou implicites, y compris, mais sans s'y limiter :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section8Item1">Qualité marchande</li>
+            <li data-i18n="termsContent.section8Item2">Adéquation à un usage particulier</li>
+            <li data-i18n="termsContent.section8Item3">Non-violation</li>
+          </ul>
+          <p data-i18n="termsContent.section8End">Nous ne garantissons pas que l'extension sera exempte d'erreurs, ininterrompue ou totalement exacte.</p>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section9Title">9. Limitation de responsabilité</h3>
+          <p data-i18n="termsContent.section9Text">Dans toute la mesure permise par la loi, Clear Terms (et ses créateurs, équipe et affiliés) ne pourra être tenu responsable de :</p>
+          <ul class="list-disc pl-5 space-y-1">
+            <li data-i18n="termsContent.section9Item1">Tout dommage indirect, accessoire ou consécutif</li>
+            <li data-i18n="termsContent.section9Item2">Toute perte de données, de profit ou d'opportunité commerciale</li>
+            <li data-i18n="termsContent.section9Item3">Toute décision que vous prenez sur la base de notre contenu</li>
+          </ul>
+          <p data-i18n="termsContent.section9End">Votre seul recours en cas d'insatisfaction avec le service est de cesser de l'utiliser.</p>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section10Title">10. Droit applicable</h3>
+          <p data-i18n="termsContent.section10Text">Ces conditions sont régies et interprétées conformément aux lois françaises. Tout litige sera traité exclusivement par les tribunaux compétents en France.</p>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section11Title">11. Modifications de ces conditions</h3>
+          <p data-i18n="termsContent.section11Text">Nous pouvons mettre à jour ces Conditions de Service de temps à autre. Si nous apportons des modifications importantes, nous vous en informerons via l'extension. L'utilisation continue du service après les mises à jour constitue votre acceptation des nouvelles conditions.</p>
+        </section>
+
+        <section>
+          <h3 class="text-sm font-semibold text-gray-900 mb-2" data-i18n="termsContent.section12Title">12. Contact</h3>
+          <p data-i18n="termsContent.section12Text">Questions ou préoccupations ? Contactez-nous à : [EMAIL]</p>
+        </section>
+
+        <p class="text-gray-500 italic mt-4" data-i18n="termsContent.lastUpdated">Dernière mise à jour : 6 octobre 2025</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

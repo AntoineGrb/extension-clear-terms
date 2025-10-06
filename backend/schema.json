@@ -1,11 +1,16 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["site_name", "categories"],
+  "required": ["site_name", "categories", "detected_language"],
   "properties": {
     "site_name": {
       "type": "string",
       "description": "Nom du site ou service analysé (ex: Google, Facebook, Amazon)"
+    },
+    "detected_language": {
+      "type": "string",
+      "enum": ["fr", "en"],
+      "description": "Langue détectée des CGU analysées (fr = français, en = anglais)"
     },
     "categories": {
       "type": "object",
@@ -19,7 +24,9 @@
         "policy_changes",
         "legal_compliance",
         "cookies_tracking",
-        "children_privacy"
+        "children_privacy",
+        "user_content_rights",
+        "dispute_resolution"
       ],
       "properties": {
         "data_collection": {
@@ -50,6 +57,12 @@
           "$ref": "#/definitions/category"
         },
         "children_privacy": {
+          "$ref": "#/definitions/category"
+        },
+        "user_content_rights": {
+          "$ref": "#/definitions/category"
+        },
+        "dispute_resolution": {
           "$ref": "#/definitions/category"
         }
       }

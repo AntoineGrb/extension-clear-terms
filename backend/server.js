@@ -128,21 +128,31 @@ async function processJob(jobId) {
   try {
     job.status = 'running';
 
-    const { content } = job;
+    const { content, userLanguage } = job;
     const cleanedContent = cleanText(content);
     const contentHash = calculateHash(cleanedContent);
 
-    // Vérifier le cache
+    // Vérifier le cache pour cette langue spécifique
     if (cache.has(contentHash)) {
-      console.log(`📦 Rapport trouvé en cache pour hash: ${contentHash.substring(0, 8)}...`);
-      job.result = cache.get(contentHash);
-      job.status = 'done';
-      return;
+      const cachedEntry = cache.get(contentHash);
+
+      // Si le rapport dans la langue demandée existe déjà
+      if (cachedEntry.reports && cachedEntry.reports[userLanguage]) {
+        console.log(`📦 Rapport ${userLanguage.toUpperCase()} trouvé en cache pour hash: ${contentHash.substring(0, 8)}...`);
+        job.result = cachedEntry.reports[userLanguage];
+        job.status = 'done';
+        return;
+      }
+
+      console.log(`📦 Cache trouvé mais pas de version ${userLanguage.toUpperCase()}, génération en cours...`);
     }
 
     // Charger le prompt et le schéma
-    const promptTemplate = await loadPromptTemplate();
-    const fullPrompt = promptTemplate + '\n\n' + cleanedContent;
+    let promptTemplate = await loadPromptTemplate();
+
+    // Ajouter la préférence de langue dans le prompt
+    const languageInstruction = `\n\n**USER_LANGUAGE_PREFERENCE: ${userLanguage}** (Génère tous les commentaires dans cette langue)\n`;
+    const fullPrompt = promptTemplate + languageInstruction + '\n\n' + cleanedContent;
 
     // Appeler Gemini
     const aiResponse = await callGemini(fullPrompt);
@@ -180,23 +190,39 @@ async function processJob(jobId) {
     }
 
     // Valider le schéma (basique)
-    if (!report.site_name || !report.categories) {
+    if (!report.site_name || !report.categories || !report.detected_language) {
       console.error('❌ Validation échouée - Champs manquants');
       console.error('   - site_name présent:', !!report.site_name);
       console.error('   - categories présent:', !!report.categories);
+      console.error('   - detected_language présent:', !!report.detected_language);
       console.error('   - Structure reçue:', JSON.stringify(report, null, 2));
-      throw new Error('Réponse invalide : champs site_name ou categories manquants');
+      throw new Error('Réponse invalide : champs obligatoires manquants');
     }
 
     // Ajouter des métadonnées
     report.metadata = {
       content_hash: contentHash,
       analyzed_at: new Date().toISOString(),
-      model_used: PRIMARY_MODEL
+      model_used: PRIMARY_MODEL,
+      output_language: userLanguage
     };
 
-    // Mettre en cache
-    cache.set(contentHash, report);
+    // Mettre en cache avec structure multilingue
+    if (cache.has(contentHash)) {
+      // Ajouter la nouvelle langue au cache existant
+      const existing = cache.get(contentHash);
+      existing.reports[userLanguage] = report;
+    } else {
+      // Créer une nouvelle entrée cache
+      cache.set(contentHash, {
+        domain: job.url ? new URL(job.url).hostname : 'unknown',
+        detected_language: report.detected_language,
+        reports: {
+          [userLanguage]: report
+        },
+        createdAt: new Date().toISOString()
+      });
+    }
 
     job.result = report;
     job.status = 'done';
@@ -215,12 +241,12 @@ async function processJob(jobId) {
 /**
  * POST /scan
  * Lance une analyse de CGU
- * Body: { url: string, content: string }
+ * Body: { url: string, content: string, user_language_preference: string }
  * Response: { job_id: string }
  */
 app.post('/scan', async (req, res) => {
   try {
-    const { url, content } = req.body;
+    const { url, content, user_language_preference } = req.body;
 
     if (!content || typeof content !== 'string') {
       return res.status(400).json({ error: 'Le champ "content" est requis et doit être une chaîne de caractères' });
@@ -230,6 +256,9 @@ app.post('/scan', async (req, res) => {
       return res.status(400).json({ error: 'Le contenu est trop court pour être analysé (minimum 100 caractères)' });
     }
 
+    // Valider et définir la langue par défaut
+    const userLanguage = ['fr', 'en'].includes(user_language_preference) ? user_language_preference : 'fr';
+
     // Générer un job_id unique
     const jobId = crypto.randomUUID();
 
@@ -238,6 +267,7 @@ app.post('/scan', async (req, res) => {
       status: 'queued',
       url: url || 'unknown',
       content,
+      userLanguage,
       result: null,
       error: null,
       createdAt: Date.now()
@@ -286,22 +316,32 @@ app.get('/jobs/:id', (req, res) => {
 /**
  * GET /report
  * Recherche dans le cache par hash de contenu
- * Query: ?hash=xxx
+ * Query: ?hash=xxx&lang=fr|en
  */
 app.get('/report', (req, res) => {
-  const { hash } = req.query;
+  const { hash, lang } = req.query;
 
   if (!hash) {
     return res.status(400).json({ error: 'Le paramètre "hash" est requis' });
   }
 
-  const report = cache.get(hash);
+  const cachedEntry = cache.get(hash);
 
-  if (!report) {
+  if (!cachedEntry) {
     return res.status(404).json({ error: 'Rapport non trouvé en cache' });
   }
 
-  res.json(report);
+  // Si une langue est spécifiée, retourner uniquement cette version
+  const language = ['fr', 'en'].includes(lang) ? lang : 'fr';
+
+  if (cachedEntry.reports && cachedEntry.reports[language]) {
+    res.json(cachedEntry.reports[language]);
+  } else {
+    return res.status(404).json({
+      error: `Rapport non disponible en ${language}`,
+      available_languages: Object.keys(cachedEntry.reports || {})
+    });
+  }
 });
 
 /**

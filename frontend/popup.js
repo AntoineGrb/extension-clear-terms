@@ -38,11 +38,11 @@ async function extractPageContent() {
 /**
  * Lance une analyse
  */
-async function startScan(url, content) {
+async function startScan(url, content, userLanguage) {
   const response = await fetch(`${BACKEND_URL}/scan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, content })
+    body: JSON.stringify({ url, content, user_language_preference: userLanguage })
   });
 
   if (!response.ok) {
@@ -117,20 +117,40 @@ function getDomainName(url) {
 }
 
 /**
- * Traduit les noms de catégories
+ * Applique les traductions à tous les éléments avec data-i18n
  */
-const CATEGORY_NAMES = {
-  data_collection: 'Collecte de données',
-  data_usage: 'Utilisation des données',
-  data_sharing: 'Partage des données',
-  user_rights: 'Droits utilisateur',
-  data_retention: 'Conservation des données',
-  security_measures: 'Mesures de sécurité',
-  policy_changes: 'Modifications de la politique',
-  legal_compliance: 'Conformité légale',
-  cookies_tracking: 'Cookies & Tracking',
-  children_privacy: 'Protection des mineurs'
-};
+function applyTranslations(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const translation = i18n.t(key, lang);
+
+    // Pour les éléments avec du contenu mixte (comme les <li> avec emojis)
+    // on préserve la structure HTML interne
+    if (key.includes('aboutContent.status')) {
+      // Cas spéciaux pour les statuts avec emojis
+      const parts = translation.split(':');
+      if (parts.length === 2) {
+        const emoji = el.querySelector('.font-medium');
+        if (emoji) {
+          emoji.textContent = parts[0] + ' :';
+          el.childNodes[el.childNodes.length - 1].textContent = parts[1];
+        } else {
+          el.textContent = translation;
+        }
+      } else {
+        el.textContent = translation;
+      }
+    } else {
+      el.textContent = translation;
+    }
+  });
+
+  // Traduire les attributs title
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    const key = el.getAttribute('data-i18n-title');
+    el.setAttribute('title', i18n.t(key, lang));
+  });
+}
 
 /**
  * Affiche le rapport
@@ -144,19 +164,50 @@ function displayReport(report) {
   // Afficher le nom du site (de l'IA)
   document.getElementById('siteName').textContent = site_name || 'Site web';
 
-  // Afficher la date d'analyse
-  const analysisDate = metadata?.analyzed_at
-    ? new Date(metadata.analyzed_at).toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      })
-    : new Date().toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-      });
-  document.getElementById('analysisDate').textContent = `Analysé le ${analysisDate}`;
+  // Récupérer la langue pour la date
+  chrome.storage.local.get(['userLanguage'], (result) => {
+    const lang = result.userLanguage || 'fr';
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
+
+    // Afficher la date d'analyse
+    const analysisDate = metadata?.analyzed_at
+      ? new Date(metadata.analyzed_at).toLocaleDateString(locale, {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        })
+      : new Date().toLocaleDateString(locale, {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+
+    const analyzedLabel = i18n.t('analyzedOn', lang);
+    document.getElementById('analysisDate').textContent = `${analyzedLabel} ${analysisDate}`;
+
+    // Trier et afficher les catégories par ordre : red > amber > green
+    const sortOrder = { red: 0, amber: 1, green: 2, 'n/a': 3 };
+    const sortedCategories = Object.entries(categories)
+      .filter(([_, cat]) => cat.status !== 'n/a')
+      .sort(([_, a], [__, b]) => sortOrder[a.status] - sortOrder[b.status]);
+
+    // Générer les cartes de catégories avec traduction
+    const categoriesEl = document.getElementById('categoriesList');
+    const categoryColors = {
+      green: 'bg-emerald-50 border-emerald-500',
+      amber: 'bg-amber-50 border-amber-500',
+      red: 'bg-red-50 border-red-500'
+    };
+
+    categoriesEl.innerHTML = sortedCategories
+      .map(([key, cat]) => `
+        <div class="p-3 rounded-md border-l-4 ${categoryColors[cat.status]}">
+          <div class="text-sm font-semibold text-gray-900 mb-1.5">${i18n.t(`categories.${key}`, lang)}</div>
+          <div class="text-xs text-gray-600 leading-relaxed">${cat.comment}</div>
+        </div>
+      `)
+      .join('');
+  });
 
   // Afficher le grade avec Tailwind colors
   const gradeEl = document.getElementById('grade');
@@ -168,7 +219,7 @@ function displayReport(report) {
     D: 'bg-red-500',
     E: 'bg-red-600'
   };
-  gradeEl.className = `w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ml-3 flex-shrink-0 ${gradeColors[grade] || 'bg-gray-400'}`;
+  gradeEl.className = `w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white flex-shrink-0 ${gradeColors[grade] || 'bg-gray-400'}`;
 
   // Compter les badges
   const statusCounts = { green: 0, amber: 0, red: 0 };
@@ -186,36 +237,15 @@ function displayReport(report) {
     <div class="px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-700">${statusCounts.red} ✗</div>
   `;
 
-  // Trier et afficher les catégories par ordre : red > amber > green
-  const sortOrder = { red: 0, amber: 1, green: 2, 'n/a': 3 };
-  const sortedCategories = Object.entries(categories)
-    .filter(([_, cat]) => cat.status !== 'n/a')
-    .sort(([_, a], [__, b]) => sortOrder[a.status] - sortOrder[b.status]);
-
-  // Générer les cartes de catégories avec Tailwind
-  const categoriesEl = document.getElementById('categoriesList');
-  const categoryColors = {
-    green: 'bg-emerald-50 border-emerald-500',
-    amber: 'bg-amber-50 border-amber-500',
-    red: 'bg-red-50 border-red-500'
-  };
-
-  categoriesEl.innerHTML = sortedCategories
-    .map(([key, cat]) => `
-      <div class="p-3 rounded-md border-l-4 ${categoryColors[cat.status]}">
-        <div class="text-sm font-semibold text-gray-900 mb-1.5">${CATEGORY_NAMES[key] || key}</div>
-        <div class="text-xs text-gray-600 leading-relaxed">${cat.comment}</div>
-      </div>
-    `)
-    .join('');
-
   // Afficher la section rapport
   document.getElementById('reportSection').classList.remove('hidden');
 
+  // Afficher le contenu déplié par défaut
+  const content = document.getElementById('reportContent');
+  content.classList.remove('hidden');
+
   // Ajouter l'événement toggle pour l'accordéon
   const toggleBtn = document.getElementById('reportToggle');
-  const content = document.getElementById('reportContent');
-
   toggleBtn.onclick = () => {
     content.classList.toggle('hidden');
   };
@@ -227,7 +257,7 @@ function displayReport(report) {
 /**
  * Met à jour le statut (mode textuel moderne)
  */
-function updateStatus(message, type = '') {
+function updateStatus(messageKey, type = '') {
   const statusEl = document.getElementById('status');
 
   const icons = {
@@ -242,13 +272,27 @@ function updateStatus(message, type = '') {
     error: 'text-red-600 bg-red-50'
   };
 
-  if (type && message) {
-    statusEl.innerHTML = `
-      <div class="flex items-center gap-2 mt-3 p-3 rounded-md ${styles[type] || ''}">
-        ${icons[type] || ''}
-        <span class="text-xs font-medium">${message}</span>
-      </div>
-    `;
+  if (type && messageKey) {
+    // Récupérer la langue pour traduire le message
+    chrome.storage.local.get(['userLanguage'], (result) => {
+      const lang = result.userLanguage || 'fr';
+
+      // Si le message commence par "statusError:", on concatène
+      let message;
+      if (messageKey.startsWith('ERROR:')) {
+        const errorText = messageKey.substring(6);
+        message = `${i18n.t('statusError', lang)} ${errorText}`;
+      } else {
+        message = i18n.t(messageKey, lang);
+      }
+
+      statusEl.innerHTML = `
+        <div class="flex items-center gap-2 mt-3 p-3 rounded-md ${styles[type] || ''}">
+          ${icons[type] || ''}
+          <span class="text-xs font-medium">${message}</span>
+        </div>
+      `;
+    });
   } else {
     statusEl.innerHTML = '';
   }
@@ -265,7 +309,7 @@ document.getElementById('scanButton').addEventListener('click', async () => {
   let currentUrl = 'unknown';
 
   try {
-    updateStatus('Extraction du contenu de la page...', 'loading');
+    updateStatus('statusExtracting', 'loading');
 
     // Extraire le contenu
     const { text, url } = await extractPageContent();
@@ -275,10 +319,13 @@ document.getElementById('scanButton').addEventListener('click', async () => {
       throw new Error('Le contenu de la page est trop court pour être analysé');
     }
 
-    updateStatus('Envoi de la requête au serveur...', 'loading');
+    updateStatus('statusSending', 'loading');
+
+    // Récupérer la préférence de langue
+    const userLanguage = await loadLanguagePreference();
 
     // Lancer l'analyse
-    const { job_id } = await startScan(url, text);
+    const { job_id } = await startScan(url, text, userLanguage);
 
     // Logger le démarrage de l'analyse dans le service worker
     chrome.runtime.sendMessage({
@@ -287,12 +334,12 @@ document.getElementById('scanButton').addEventListener('click', async () => {
       jobId: job_id
     });
 
-    updateStatus('Analyse en cours par l\'IA...', 'loading');
+    updateStatus('statusAnalyzing', 'loading');
 
     // Attendre le résultat
     const report = await pollJob(job_id);
 
-    updateStatus('Analyse terminée !', 'success');
+    updateStatus('statusComplete', 'success');
 
     // Logger le rapport complet dans le service worker
     chrome.runtime.sendMessage({
@@ -314,18 +361,109 @@ document.getElementById('scanButton').addEventListener('click', async () => {
       error: error.message
     });
 
-    updateStatus(`Erreur : ${error.message}`, 'error');
+    updateStatus(`ERROR:${error.message}`, 'error');
   } finally {
     button.disabled = false;
   }
 });
 
 // ========================================
+// Navigation
+// ========================================
+
+/**
+ * Affiche la page paramètres
+ */
+function showSettingsPage() {
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('settingsPage').classList.remove('hidden');
+}
+
+/**
+ * Affiche la page principale
+ */
+function showMainPage() {
+  document.getElementById('settingsPage').classList.add('hidden');
+  document.getElementById('mainPage').classList.remove('hidden');
+}
+
+/**
+ * Charge la préférence de langue
+ */
+async function loadLanguagePreference() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(['userLanguage'], (result) => {
+      resolve(result.userLanguage || 'fr'); // Défaut : français
+    });
+  });
+}
+
+/**
+ * Sauvegarde la préférence de langue
+ */
+function saveLanguagePreference(lang) {
+  chrome.storage.local.set({ userLanguage: lang });
+}
+
+// Event listeners pour la navigation
+document.getElementById('settingsButton').addEventListener('click', () => {
+  showSettingsPage();
+});
+
+document.getElementById('backButton').addEventListener('click', () => {
+  showMainPage();
+});
+
+// Event listener pour le changement de langue
+document.getElementById('languageSelect').addEventListener('change', (e) => {
+  const newLang = e.target.value;
+  saveLanguagePreference(newLang);
+  applyTranslations(newLang); // Appliquer immédiatement les traductions
+
+  // Rafraîchir le rapport si présent
+  chrome.storage.local.get(['lastReport'], (result) => {
+    if (result.lastReport) {
+      displayReport(result.lastReport);
+    }
+  });
+});
+
+// Navigation vers À propos
+document.getElementById('aboutButton').addEventListener('click', () => {
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('aboutPage').classList.remove('hidden');
+});
+
+document.getElementById('backFromAbout').addEventListener('click', () => {
+  document.getElementById('aboutPage').classList.add('hidden');
+  document.getElementById('mainPage').classList.remove('hidden');
+});
+
+// Navigation vers Terms
+document.getElementById('termsButton').addEventListener('click', () => {
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('termsPage').classList.remove('hidden');
+});
+
+document.getElementById('backFromTerms').addEventListener('click', () => {
+  document.getElementById('termsPage').classList.add('hidden');
+  document.getElementById('mainPage').classList.remove('hidden');
+});
+
+// ========================================
 // Initialisation
 // ========================================
 
-// Charger le dernier rapport au démarrage
-chrome.storage.local.get(['lastReport'], (result) => {
+// Charger le dernier rapport et la langue au démarrage
+chrome.storage.local.get(['lastReport', 'userLanguage'], (result) => {
+  // Définir la langue sélectionnée
+  const lang = result.userLanguage || 'fr';
+  document.getElementById('languageSelect').value = lang;
+
+  // Appliquer les traductions
+  applyTranslations(lang);
+
+  // Charger le dernier rapport si présent
   if (result.lastReport) {
     displayReport(result.lastReport);
   }

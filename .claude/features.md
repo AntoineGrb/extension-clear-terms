@@ -11,15 +11,16 @@
 - Afficher le résultat synthétique dans la popup
 
 ### Actions
-- [ ] Création du schéma JSON (voir schema.json)
-- [ ] Extraction de texte de la page (content script)
-- [ ] Envoi à `/scan`
-- [ ] Polling `/jobs/:id` pour récupérer le résultat
-- [ ] Validation JSON côté extension
-- [ ] Calcul du score + grade (renormalisation N/A)
-- [ ] UI popup : score global + 3 catégories clés
-- [ ] Sauvegarde du dernier rapport
-- [ ] Paramètres de base : langue, quota, disclaimer
+- [x] Création du schéma JSON (voir schema.json)
+- [x] Extraction de texte de la page (content script)
+- [x] Envoi à `/scan`
+- [x] Polling `/jobs/:id` pour récupérer le résultat
+- [x] Validation JSON côté extension
+- [x] Calcul du score + grade (renormalisation N/A)
+- [x] UI popup : score global + 3 catégories clés
+- [x] Sauvegarde du dernier rapport
+- [x] Paramètres de base : langue, quota, disclaimer
+- [x] Ajouter une page à propos (intégrée au pop up qui s'ouvre au clic) avec explication du scoring, de la méthode...
 
 ---
 
@@ -34,9 +35,11 @@
 - [ ] Script d’analyse DOM (liens et modales)
 - [ ] Heuristiques internationales (terms|privacy|cgu…)
 - [ ] Création du toast (Shadow DOM, Tailwind)
+- [ ] Personnalisation du toast dans les paramètres (activation, emplacement...)
 - [ ] Workflow "analyse en cours" → "rapport disponible"
 - [ ] Gestion des jobs en arrière-plan
 - [ ] Gestion des erreurs IA ou réseau
+- [ ] Vérifier qu'on est bien sur des CGs sur l'analyse manuelle.
 
 ---
 
@@ -47,11 +50,12 @@
 - Offrir une interface de consultation
 
 ### Actions
-- [ ] Page “Historique”
+- [ ] Page “Historique” des rapports.
 - [ ] Cartes repliables : score, catégories, détails
 - [ ] Recherche / tri (domaine, score, date)
 - [ ] Export / import JSON
 - [ ] Synchronisation avec `chrome.storage.local`
+- [ ] Terms of service (disclaimer juridique, utilisation des données...)
 
 ---
 
@@ -69,7 +73,6 @@
 - [ ] Système de quotas mensuels
 - [ ] Cache global par `domain + content_hash`
 - [ ] Tableau admin (liste des scans récents)
-- [ ] Choix de la langue (anglai ou français sur l'appli)
 
 ---
 
