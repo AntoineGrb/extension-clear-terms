@@ -14,9 +14,14 @@ const KEYWORDS_LIGHT = {
     'cgu',
     'cgv',
     'données personnelles',
-    'vie privée'
+    'vie privée',
+    'termes et conditions',
+    'accord utilisateur',
+    'contrat de service',
+    'conditions de service'
   ],
   en: [
+    'terms',
     'terms of service',
     'terms of use',
     'privacy policy',
@@ -24,7 +29,10 @@ const KEYWORDS_LIGHT = {
     'user agreement',
     'legal notice',
     'terms & conditions',
-    'privacy notice'
+    'privacy notice',
+    'service agreement',
+    'user terms',
+    'data policy',
   ]
 };
 
@@ -32,7 +40,7 @@ const KEYWORDS_LIGHT = {
  * Critères de validation approfondie (Niveau 2)
  */
 const VALIDATION_CRITERIA = {
-  minLength: 2000, // Longueur minimale en caractères
+  minLength: 1500, // Longueur minimale en caractères
   contractualKeywords: {
     fr: [
       'acceptez',

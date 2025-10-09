@@ -168,11 +168,11 @@ const translations = {
       section9Item3: "Toute décision que vous prenez sur la base de notre contenu",
       section9End: "Votre seul recours en cas d'insatisfaction avec le service est de cesser de l'utiliser.",
 
-      section10Title: "10. Droit applicable",
-      section10Text: "Ces conditions sont régies et interprétées conformément aux lois françaises. Tout litige sera traité exclusivement par les tribunaux compétents en France.",
+      section10Title: "10. Droit applicable et conformité",
+      section10Text: "Ces conditions sont régies et interprétées conformément aux lois françaises et aux réglementations européennes, notamment le Règlement Général sur la Protection des Données (RGPD). Nous nous engageons à protéger vos données personnelles conformément au RGPD et à respecter vos droits d'accès, de rectification, d'effacement et de portabilité des données. Tout litige sera traité exclusivement par les tribunaux compétents en France.",
 
       section11Title: "11. Modifications de ces conditions",
-      section11Text: "Nous pouvons mettre à jour ces Conditions de Service de temps à autre. Si nous apportons des modifications importantes, nous vous en informerons via l'extension. L'utilisation continue du service après les mises à jour constitue votre acceptation des nouvelles conditions.",
+      section11Text: "Nous pouvons mettre à jour ces Conditions de Service de temps à autre. Si nous apportons des modifications importantes, nous vous en informerons via l'extension avec un délai de préavis de 30 jours. Si vous n'acceptez pas les nouvelles conditions, vous pouvez cesser d'utiliser l'extension en la désinstallant avant l'entrée en vigueur des modifications. L'utilisation continue du service après ce délai constitue votre acceptation des nouvelles conditions.",
 
       section12Title: "12. Contact",
       section12Text: "Questions ou préoccupations ? Contactez-nous à : [EMAIL]",
@@ -346,11 +346,11 @@ const translations = {
       section9Item3: "Any decisions you make based on our content",
       section9End: "Your sole remedy for dissatisfaction with the service is to stop using it.",
 
-      section10Title: "10. Governing Law",
-      section10Text: "These terms shall be governed by and construed in accordance with French law. Any disputes shall be handled exclusively in the competent courts in France.",
+      section10Title: "10. Governing Law and Compliance",
+      section10Text: "These terms shall be governed by and construed in accordance with French law and European regulations, including the General Data Protection Regulation (GDPR). We are committed to protecting your personal data in accordance with GDPR and respecting your rights of access, rectification, erasure, and data portability. Any disputes shall be handled exclusively in the competent courts in France.",
 
       section11Title: "11. Changes to These Terms",
-      section11Text: "We may update these Terms of Service from time to time. If we make material changes, we will notify you via the extension. Continued use of the service after updates constitutes your acceptance of the new terms.",
+      section11Text: "We may update these Terms of Service from time to time. If we make material changes, we will notify you via the extension with a 30-day notice period. If you do not accept the new terms, you may stop using the extension by uninstalling it before the changes take effect. Continued use of the service after this period constitutes your acceptance of the new terms.",
 
       section12Title: "12. Contact",
       section12Text: "Questions or concerns? Contact us at: [EMAIL]",

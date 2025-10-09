@@ -33,8 +33,19 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
     // Charger le prompt et le schéma
     let promptTemplate = await loadPromptTemplate();
 
-    // Ajouter la préférence de langue dans le prompt
-    const languageInstruction = `\n\n**USER_LANGUAGE_PREFERENCE: ${userLanguage}** (Génère tous les commentaires dans cette langue)\n`;
+    // Ajouter la préférence de langue dans le prompt (instruction forte)
+    const languageMap = {
+      'fr': 'français',
+      'en': 'English'
+    };
+    const languageName = languageMap[userLanguage] || 'English';
+
+    const languageInstruction = `\n\n⚠️ CRITICAL INSTRUCTION - LANGUAGE REQUIREMENT ⚠️
+**YOU MUST GENERATE ALL "comment" FIELDS IN ${languageName.toUpperCase()} (${userLanguage.toUpperCase()}).**
+Even if the source document is in another language, ALL your analysis comments MUST be written in ${languageName}.
+This is a mandatory requirement. Do not write comments in any other language.
+---\n`;
+
     const fullPrompt = promptTemplate + languageInstruction + '\n\n' + cleanedContent;
 
     // Appeler Gemini
@@ -73,11 +84,10 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
     }
 
     // Valider le schéma (basique)
-    if (!report.site_name || !report.categories || !report.detected_language) {
+    if (!report.site_name || !report.categories) {
       console.error('❌ Validation échouée - Champs manquants');
       console.error('   - site_name présent:', !!report.site_name);
       console.error('   - categories présent:', !!report.categories);
-      console.error('   - detected_language présent:', !!report.detected_language);
       console.error('   - Structure reçue:', JSON.stringify(report, null, 2));
       throw new Error('Réponse invalide : champs obligatoires manquants');
     }
@@ -100,7 +110,6 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
       // Créer une nouvelle entrée cache
       cache.set(contentHash, {
         domain: job.url ? new URL(job.url).hostname : 'unknown',
-        detected_language: report.detected_language,
         reports: {
           [userLanguage]: report
         },

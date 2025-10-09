@@ -41,17 +41,17 @@ if (document.readyState === 'loading') {
   // Attendre que la page soit complètement chargée (y compris images, iframes, etc.)
   window.addEventListener('load', () => {
     // Attendre encore un peu pour le contenu lazy-loaded
-    setTimeout(detectAndAnalyze, 500);
+    setTimeout(detectAndAnalyze, 1000);
   });
 } else if (document.readyState === 'interactive') {
   // Page en cours de chargement
   window.addEventListener('load', () => {
-    setTimeout(detectAndAnalyze, 500);
+    setTimeout(detectAndAnalyze, 1000);
   });
 } else {
   // Si la page est déjà complètement chargée (complete)
   // Attendre quand même pour les SPAs et lazy loading
-  setTimeout(detectAndAnalyze, 500);
+  setTimeout(detectAndAnalyze, 1000);
 }
 
 console.log('[Clear Terms] Content script chargé ✓');
