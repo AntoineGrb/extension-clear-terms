@@ -13,23 +13,12 @@ function displayReport(report) {
   // Récupérer la langue pour la date
   chrome.storage.local.get(['userLanguage'], (result) => {
     const lang = result.userLanguage || 'fr';
-    const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
 
-    // Afficher la date d'analyse
-    const analysisDate = metadata?.analyzed_at
-      ? new Date(metadata.analyzed_at).toLocaleDateString(locale, {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        })
-      : new Date().toLocaleDateString(locale, {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric'
-        });
+    // Utiliser la vraie date d'analyse (celle du rapport)
+    const timestamp = metadata?.analyzed_at ? new Date(metadata.analyzed_at).getTime() : Date.now();
+    const relativeDate = formatRelativeTime(timestamp, lang);
 
-    const analyzedLabel = i18n.t('analyzedOn', lang);
-    document.getElementById('analysisDate').textContent = `${analyzedLabel} ${analysisDate}`;
+    document.getElementById('analysisDate').textContent = relativeDate;
 
     // Afficher l'URL analysée
     const analyzedUrl = metadata?.analyzed_url || 'URL inconnue';
@@ -93,7 +82,7 @@ function displayReport(report) {
     D: 'bg-red-500',
     E: 'bg-red-600'
   };
-  gradeEl.className = `w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold text-white flex-shrink-0 ${gradeColors[grade] || 'bg-gray-400'}`;
+  gradeEl.className = `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white flex-shrink-0 ${gradeColors[grade] || 'bg-gray-400'}`;
 
   // Compter les badges
   const statusCounts = { green: 0, amber: 0, red: 0 };
@@ -106,9 +95,9 @@ function displayReport(report) {
   // Afficher les badges avec Tailwind
   const badgesEl = document.getElementById('badges');
   badgesEl.innerHTML = `
-    <div class="px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">${statusCounts.green} ✓</div>
-    <div class="px-3 py-1.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">${statusCounts.amber} ⚠</div>
-    <div class="px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-700">${statusCounts.red} ✗</div>
+    <div class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">${statusCounts.green} ✓</div>
+    <div class="px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">${statusCounts.amber} ⚠</div>
+    <div class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">${statusCounts.red} ✗</div>
   `;
 
   // Afficher la section rapport et le titre + lien
@@ -120,25 +109,61 @@ function displayReport(report) {
   const content = document.getElementById('reportContent');
   content.classList.remove('hidden');
 
-  // Ajouter l'événement toggle pour l'accordéon avec rotation du chevron
-  const toggleBtn = document.getElementById('reportToggle');
-  const chevron = toggleBtn.querySelector('svg');
+  // Ajouter l'événement toggle pour l'accordéon (clic sur toute la card)
+  const reportSection = document.getElementById('reportSection');
 
-  // Chevron déjà en position "ouvert" au départ
-  chevron.style.transform = 'rotate(180deg)';
-
-  toggleBtn.onclick = () => {
-    const isHidden = content.classList.toggle('hidden');
-    // Rotation du chevron
-    if (isHidden) {
-      chevron.style.transform = 'rotate(0deg)';
-    } else {
-      chevron.style.transform = 'rotate(180deg)';
+  reportSection.onclick = (e) => {
+    // Ne pas fermer si on clique sur le bouton copier
+    if (e.target.closest('#copyUrlButton')) {
+      return;
     }
+    content.classList.toggle('hidden');
   };
 
   // Sauvegarder le rapport
   chrome.storage.local.set({ lastReport: report });
+}
+
+/**
+ * Formate une date en temps relatif
+ */
+function formatRelativeTime(timestamp, lang) {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  const translations = {
+    fr: {
+      justNow: 'Analysé à l\'instant',
+      minutesAgo: (n) => `Analysé il y a ${n} minute${n > 1 ? 's' : ''}`,
+      hoursAgo: (n) => `Analysé il y a ${n} heure${n > 1 ? 's' : ''}`,
+      daysAgo: (n) => `Analysé il y a ${n} jour${n > 1 ? 's' : ''}`
+    },
+    en: {
+      justNow: 'Analyzed just now',
+      minutesAgo: (n) => `Analyzed ${n} minute${n > 1 ? 's' : ''} ago`,
+      hoursAgo: (n) => `Analyzed ${n} hour${n > 1 ? 's' : ''} ago`,
+      daysAgo: (n) => `Analyzed ${n} day${n > 1 ? 's' : ''} ago`
+    }
+  };
+
+  const t = translations[lang] || translations['fr'];
+
+  if (diff < minute) {
+    return t.justNow;
+  } else if (diff < hour) {
+    const minutes = Math.floor(diff / minute);
+    return t.minutesAgo(minutes);
+  } else if (diff < day) {
+    const hours = Math.floor(diff / hour);
+    return t.hoursAgo(hours);
+  } else {
+    const days = Math.floor(diff / day);
+    return t.daysAgo(days);
+  }
 }
 
 /**

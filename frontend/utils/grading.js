@@ -14,10 +14,10 @@ function calculateGrade(categories) {
 
   const score = (statusCounts.green * 2 + statusCounts.amber) / (total * 2);
 
-  if (score >= 0.8) return 'A';
-  if (score >= 0.6) return 'B';
-  if (score >= 0.4) return 'C';
-  if (score >= 0.2) return 'D';
+  if (score >= 0.85) return 'A';
+  if (score >= 0.7) return 'B';
+  if (score >= 0.55) return 'C';
+  if (score >= 0.4) return 'D';
   return 'E';
 }
 

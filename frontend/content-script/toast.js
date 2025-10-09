@@ -13,30 +13,42 @@ function createToast() {
     return;
   }
 
-  // Récupérer la langue de l'utilisateur
-  chrome.storage.local.get(['userLanguage'], (result) => {
+  // Récupérer la langue et les préférences du toast
+  chrome.storage.local.get(['userLanguage', 'toastPosition', 'toastDuration'], (result) => {
     const lang = result.userLanguage || 'fr';
+    const position = result.toastPosition || 'bottom-right';
+    const duration = result.toastDuration !== undefined ? result.toastDuration : 5000;
 
     const translations = {
       fr: {
-        title: 'Rapport CGU disponible',
-        subtitle: 'Cliquez pour voir l\'analyse'
+        appName: 'Clear Terms',
+        title: 'Analyse des CGU disponible',
+        subtitle: 'Cliquer pour voir l\'analyse'
       },
       en: {
-        title: 'Terms Report Available',
+        appName: 'Clear Terms',
+        title: 'Terms Analysis Available',
         subtitle: 'Click to view analysis'
       }
     };
 
     const t = translations[lang];
 
-    // Créer le container
+    // Créer le container avec la position choisie
     const toastContainer = document.createElement('div');
     toastContainer.id = 'clear-terms-toast-container';
+
+    // Définir la position selon la préférence
+    const positions = {
+      'bottom-right': 'bottom: 20px; right: 20px;',
+      'bottom-left': 'bottom: 20px; left: 20px;',
+      'top-right': 'top: 20px; right: 20px;',
+      'top-left': 'top: 20px; left: 20px;'
+    };
+
     toastContainer.style.cssText = `
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      ${positions[position]}
       z-index: 2147483647;
       animation: slideIn 0.3s ease-out;
     `;
@@ -63,8 +75,7 @@ function createToast() {
           border-radius: 12px;
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
           padding: 16px;
-          max-width: 320px;
-          border-left: 4px solid #6366f1;
+          max-width: 340px;
           cursor: pointer;
           transition: all 0.2s ease;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -75,27 +86,39 @@ function createToast() {
           transform: translateY(-2px);
         }
 
+        .toast-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+
+        .logo {
+          flex-shrink: 0;
+          width: 32px;
+          height: 32px;
+          background: linear-gradient(135deg, #6366f1 0%, #a78bfa 100%);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+          color: white;
+        }
+
+        .app-name {
+          flex: 1;
+          font-size: 13px;
+          font-weight: 600;
+          color: #6366f1;
+          margin: 0;
+        }
+
         .toast-content {
           display: flex;
           align-items: start;
           gap: 12px;
-        }
-
-        .icon-container {
-          flex-shrink: 0;
-          width: 40px;
-          height: 40px;
-          background: #eef2ff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .icon {
-          width: 24px;
-          height: 24px;
-          color: #6366f1;
         }
 
         .text-content {
@@ -141,21 +164,20 @@ function createToast() {
         }
       </style>
       <div class="toast">
-        <div class="toast-content">
-          <div class="icon-container">
-            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <div class="text-content">
-            <p class="title">${t.title}</p>
-            <p class="subtitle">${t.subtitle}</p>
-          </div>
+        <div class="toast-header">
+          <div class="logo">CT</div>
+          <p class="app-name">${t.appName}</p>
           <button class="close-btn" id="close-toast" aria-label="Close">
             <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
+        </div>
+        <div class="toast-content">
+          <div class="text-content">
+            <p class="title">${t.title}</p>
+            <p class="subtitle">${t.subtitle}</p>
+          </div>
         </div>
       </div>
     `;
@@ -177,11 +199,13 @@ function createToast() {
       toastContainer.remove();
     });
 
-    // Auto-fermeture après 5 secondes
-    setTimeout(() => {
-      if (document.getElementById('clear-terms-toast-container')) {
-        toastContainer.remove();
-      }
-    }, 5000);
+    // Auto-fermeture selon la durée choisie (0 = manuel)
+    if (duration > 0) {
+      setTimeout(() => {
+        if (document.getElementById('clear-terms-toast-container')) {
+          toastContainer.remove();
+        }
+      }, duration);
+    }
   });
 }

@@ -9,7 +9,7 @@
 <body class="min-h-screen overflow-y-scroll bg-slate-100">
   <!-- Header -->
   <div class="sticky top-0 z-10 px-6 py-5 text-white shadow-md bg-gradient-to-br from-primary-500 to-secondary-500">
-    <div class="flex items-center justify-between mx-auto max-w-5xl">
+    <div class="flex items-center justify-between max-w-5xl mx-auto">
       <div>
         <h1 class="mb-1 text-xl font-semibold" data-i18n="headerTitle">Clear Terms</h1>
         <p class="text-sm opacity-90">
@@ -17,7 +17,7 @@
           <span id="reportCount" class="ml-2">• 0 rapport</span>
         </p>
       </div>
-      <button id="clearHistoryButton" class="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors bg-white/10 rounded-lg hover:bg-white/20">
+      <button id="clearHistoryButton" class="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors rounded-lg bg-white/10 hover:bg-white/20">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
@@ -27,7 +27,7 @@
   </div>
 
   <!-- Main Content -->
-  <div class="px-6 py-8 mx-auto max-w-5xl">
+  <div class="max-w-5xl px-6 py-8 mx-auto">
     <!-- Search and Filters -->
     <div class="grid grid-cols-1 gap-3 mb-6 md:grid-cols-3">
       <!-- Search Bar -->
@@ -61,8 +61,8 @@
         <option value="date-old" data-i18n="sortDateOld">Date (ancien)</option>
         <option value="score-ae" data-i18n="sortScoreAE">Score (A→E)</option>
         <option value="score-ea" data-i18n="sortScoreEA">Score (E→A)</option>
-        <option value="name-az" data-i18n="sortNameAZ">Nom (A-Z)</option>
-        <option value="name-za" data-i18n="sortNameZA">Nom (Z-A)</option>
+        <option value="name-az" data-i18n="sortNameAZ">Nom (A→Z)</option>
+        <option value="name-za" data-i18n="sortNameZA">Nom (Z→A)</option>
       </select>
     </div>
 

@@ -11,11 +11,9 @@ let currentLang = 'fr';
 // ========================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Charger la langue
+  // Charger la langue de l'utilisateur
   const { userLanguage } = await chrome.storage.local.get(['userLanguage']);
   currentLang = userLanguage || detectBrowserLanguage();
-
-  // Appliquer les traductions
   applyTranslations(currentLang);
 
   // Charger les rapports
@@ -76,6 +74,7 @@ function renderReports() {
   emptyState.classList.add('hidden');
   noResultsState.classList.add('hidden');
 
+  // Créer les cards des rapports
   reportsList.innerHTML = filteredReports.map(entry => createReportCard(entry)).join('');
 
   // Ajouter les event listeners pour les accordéons
@@ -89,7 +88,7 @@ function renderReports() {
 // ========================================
 
 function createReportCard(entry) {
-  const { id, timestamp, report } = entry;
+  const { id, report } = entry;
   const { site_name, categories, metadata } = report;
 
   // Calculer le grade
@@ -121,8 +120,9 @@ function createReportCard(entry) {
     E: 'border-red-600'
   };
 
-  // URL et date
+  // URL et date d'analyse
   const analyzedUrl = metadata?.analyzed_url || 'URL inconnue';
+  const timestamp = metadata?.analyzed_at ? new Date(metadata.analyzed_at).getTime() : Date.now();
   const dateStr = formatDate(timestamp);
   const relativeTime = formatRelativeTime(timestamp);
 
@@ -363,11 +363,17 @@ function applyFilters() {
 
   // Trier
   filteredReports.sort((a, b) => {
+    // Utiliser la vraie date d'analyse du rapport
+    const getTimestamp = (entry) => {
+      const analyzedAt = entry.report.metadata?.analyzed_at;
+      return analyzedAt ? new Date(analyzedAt).getTime() : entry.timestamp;
+    };
+
     switch (sortBy) {
       case 'date-recent':
-        return b.timestamp - a.timestamp;
+        return getTimestamp(b) - getTimestamp(a);
       case 'date-old':
-        return a.timestamp - b.timestamp;
+        return getTimestamp(a) - getTimestamp(b);
       case 'score-ae':
         return calculateGrade(a.report.categories).localeCompare(calculateGrade(b.report.categories));
       case 'score-ea':

@@ -4,7 +4,6 @@ const MAX_POLL_ATTEMPTS = 60; // 2 minutes max
 
 /**
  * Extrait le texte de la page active
- * MODIFIÉ : Utilise maintenant le content script pour garantir la même extraction que l'auto-scan
  */
 async function extractPageContent() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -53,7 +52,19 @@ async function pollJob(jobId) {
     const job = await response.json();
 
     if (job.status === 'done') {
-      return job.result;
+      // Créer une copie profonde pour éviter les mutations par référence
+      const report = JSON.parse(JSON.stringify(job.result));
+
+      // Mettre à jour le timestamp pour refléter le moment de cette analyse
+      // (même si le rapport vient du cache, pour l'utilisateur c'est une nouvelle analyse)
+      const now = new Date().toISOString();
+      if (report.metadata) {
+        report.metadata.analyzed_at = now;
+      }
+
+      console.log('📅 [MANUEL] Timestamp mis à jour:', now);
+
+      return report;
     }
 
     if (job.status === 'error') {

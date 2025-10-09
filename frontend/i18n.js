@@ -77,14 +77,21 @@ const translations = {
     languageHelp: "Les rapports seront générés dans cette langue",
     toastEnabled: "Activer la détection automatique",
     toastEnabledHelp: "Affiche un toast lorsque des CGU sont détectées sur une page",
+    toastPositionLabel: "Position du toast",
+    toastPositionBottomRight: "En bas à droite",
+    toastPositionBottomLeft: "En bas à gauche",
+    toastPositionTopRight: "En haut à droite",
+    toastPositionTopLeft: "En haut à gauche",
+    toastDurationLabel: "Durée d'affichage (secondes)",
+    toastDurationManual: "Manuel (cliquer pour fermer)",
 
     // Page À propos
     aboutContent: {
       title: "À propos",
-      missionTitle: "🎯 Notre mission",
+      missionTitle: "Notre mission",
       missionText: "Clear Terms aide les utilisateurs à comprendre rapidement les Conditions Générales d'Utilisation et Politiques de Confidentialité des services en ligne. Notre IA analyse le contenu et identifie les points importants pour vous permettre de prendre des décisions éclairées.",
 
-      howItWorksTitle: "📊 Comment ça marche ?",
+      howItWorksTitle: "Comment ça marche ?",
       howItWorksText1: "Nous utilisons l'IA (Google Gemini) pour analyser automatiquement 12 catégories clés : collecte de données, partage avec des tiers, droits utilisateur, mesures de sécurité, et bien plus.",
       howItWorksText2: "Chaque catégorie reçoit un statut basé sur son impact pour l'utilisateur :",
       statusGreen: "🟢 Vert : Favorable pour l'utilisateur",
@@ -92,13 +99,13 @@ const translations = {
       statusRed: "🔴 Rouge : Préoccupant",
       statusNA: "⚪ N/A : Non mentionné dans le document",
 
-      scoreTitle: "🎯 Calcul du score",
+      scoreTitle: "Calcul du score",
       scoreText: "Le score global (A-E) est calculé en pondérant les catégories : chaque statut vert compte pour 2 points, ambre pour 1 point, rouge pour 0. Les catégories N/A ne sont pas prises en compte dans le calcul.",
 
-      privacyTitle: "🔒 Confidentialité",
+      privacyTitle: "Confidentialité",
       privacyText: "Vos données ne sont jamais stockées de manière identifiable. L'analyse est effectuée en temps réel et les résultats sont mis en cache anonymement (par hash du contenu) pour optimiser les performances et réduire les coûts.",
 
-      limitationsTitle: "⚠️ Limitations importantes",
+      limitationsTitle: "Limitations importantes",
       limitationsText: "Clear Terms n'est pas un conseil juridique et ne remplace pas l'avis d'un avocat qualifié. Les analyses peuvent contenir des erreurs ou des imprécisions. Consultez toujours le texte original et, si nécessaire, un professionnel du droit."
     },
 
@@ -248,11 +255,18 @@ const translations = {
     languageHelp: "Reports will be generated in this language",
     toastEnabled: "Enable automatic detection",
     toastEnabledHelp: "Shows a toast when Terms are detected on a page",
+    toastPositionLabel: "Toast position",
+    toastPositionBottomRight: "Bottom right",
+    toastPositionBottomLeft: "Bottom left",
+    toastPositionTopRight: "Top right",
+    toastPositionTopLeft: "Top left",
+    toastDurationLabel: "Display duration (seconds)",
+    toastDurationManual: "Manual (click to close)",
 
     // About page
     aboutContent: {
       title: "About",
-      missionTitle: "🎯 Our Mission",
+      missionTitle: "Our Mission",
       missionText: "Clear Terms helps users quickly understand Terms of Service and Privacy Policies of online services. Our AI analyzes content and identifies key points to help you make informed decisions.",
 
       howItWorksTitle: "📊 How It Works",
@@ -263,13 +277,13 @@ const translations = {
       statusRed: "🔴 Red: Concerning",
       statusNA: "⚪ N/A: Not mentioned in the document",
 
-      scoreTitle: "🎯 Score Calculation",
+      scoreTitle: "Score Calculation",
       scoreText: "The overall score (A-E) is calculated by weighting categories: each green status counts for 2 points, amber for 1 point, red for 0. N/A categories are not included in the calculation.",
 
-      privacyTitle: "🔒 Privacy",
+      privacyTitle: "Privacy",
       privacyText: "Your data is never stored in an identifiable manner. Analysis is performed in real-time and results are cached anonymously (by content hash) to optimize performance and reduce costs.",
 
-      limitationsTitle: "⚠️ Important Limitations",
+      limitationsTitle: "Important Limitations",
       limitationsText: "Clear Terms is not legal advice and does not replace the opinion of a qualified attorney. Analyses may contain errors or inaccuracies. Always consult the original text and, if necessary, a legal professional."
     },
 

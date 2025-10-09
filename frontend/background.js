@@ -102,16 +102,28 @@ async function pollAutoJob(jobId, tabId) {
       if (job.status === 'done') {
         console.log('✅ Analyse auto terminée pour l\'onglet', tabId);
 
+        // Créer une copie profonde pour éviter les mutations par référence
+        const report = JSON.parse(JSON.stringify(job.result));
+
+        // Mettre à jour le timestamp pour refléter le moment de cette analyse
+        // (même si le rapport vient du cache, pour l'utilisateur c'est une nouvelle analyse)
+        const now = new Date().toISOString();
+        if (report.metadata) {
+          report.metadata.analyzed_at = now;
+        }
+
+        console.log('📅 Timestamp mis à jour:', now);
+
         // Ajouter au reportsHistory
-        await addToReportsHistory(job.result);
+        await addToReportsHistory(report);
 
         // Sauvegarder le rapport
         await chrome.storage.local.set({
-          lastReport: job.result,
+          lastReport: report,
           [`autoJob_${tabId}`]: {
             jobId,
             status: 'done',
-            result: job.result,
+            result: report,
             completedAt: Date.now()
           }
         });
@@ -215,9 +227,9 @@ async function addToReportsHistory(report) {
     // Ajouter au début du tableau (plus récent en premier)
     reportsHistory.unshift(historyEntry);
 
-    // Limiter à 20 rapports max (FIFO)
-    if (reportsHistory.length > 20) {
-      reportsHistory.splice(20);
+    // Limiter à 100 rapports max (FIFO)
+    if (reportsHistory.length > 100) {
+      reportsHistory.splice(100);
     }
 
     // Sauvegarder
