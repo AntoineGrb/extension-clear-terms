@@ -1,0 +1,415 @@
+// ========================================
+// HISTORIQUE - Clear Terms
+// ========================================
+
+let allReports = [];
+let filteredReports = [];
+let currentLang = 'fr';
+
+// ========================================
+// Initialisation
+// ========================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Charger la langue
+  const { userLanguage } = await chrome.storage.local.get(['userLanguage']);
+  currentLang = userLanguage || detectBrowserLanguage();
+
+  // Appliquer les traductions
+  applyTranslations(currentLang);
+
+  // Charger les rapports
+  await loadReports();
+
+  // Setup event listeners
+  setupEventListeners();
+});
+
+// ========================================
+// Chargement des rapports
+// ========================================
+
+async function loadReports() {
+  try {
+    const { reportsHistory = [] } = await chrome.storage.local.get(['reportsHistory']);
+    allReports = reportsHistory;
+    filteredReports = [...allReports];
+
+    console.log('[History] Rapports chargés:', allReports.length);
+
+    // Afficher les rapports
+    renderReports();
+    updateReportCount();
+
+  } catch (error) {
+    console.error('[History] Erreur lors du chargement:', error);
+  }
+}
+
+// ========================================
+// Rendu des rapports
+// ========================================
+
+function renderReports() {
+  const reportsList = document.getElementById('reportsList');
+  const emptyState = document.getElementById('emptyState');
+  const noResultsState = document.getElementById('noResultsState');
+
+  // Si pas de rapports du tout
+  if (allReports.length === 0) {
+    reportsList.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    noResultsState.classList.add('hidden');
+    return;
+  }
+
+  // Si pas de résultats après filtrage
+  if (filteredReports.length === 0) {
+    reportsList.classList.add('hidden');
+    emptyState.classList.add('hidden');
+    noResultsState.classList.remove('hidden');
+    return;
+  }
+
+  // Afficher les rapports
+  reportsList.classList.remove('hidden');
+  emptyState.classList.add('hidden');
+  noResultsState.classList.add('hidden');
+
+  reportsList.innerHTML = filteredReports.map(entry => createReportCard(entry)).join('');
+
+  // Ajouter les event listeners pour les accordéons
+  document.querySelectorAll('.report-card-toggle').forEach(button => {
+    button.addEventListener('click', () => toggleReportCard(button));
+  });
+}
+
+// ========================================
+// Création d'une card de rapport
+// ========================================
+
+function createReportCard(entry) {
+  const { id, timestamp, report } = entry;
+  const { site_name, categories, metadata } = report;
+
+  // Calculer le grade
+  const grade = calculateGrade(categories);
+
+  // Compter les badges
+  const statusCounts = { green: 0, amber: 0, red: 0 };
+  Object.values(categories).forEach(cat => {
+    if (cat.status !== 'n/a') {
+      statusCounts[cat.status]++;
+    }
+  });
+
+  // Couleur du score
+  const gradeColors = {
+    A: 'bg-emerald-500',
+    B: 'bg-lime-500',
+    C: 'bg-amber-500',
+    D: 'bg-red-500',
+    E: 'bg-red-600'
+  };
+
+  // Bordure selon le score
+  const borderColors = {
+    A: 'border-emerald-500',
+    B: 'border-lime-500',
+    C: 'border-amber-500',
+    D: 'border-red-500',
+    E: 'border-red-600'
+  };
+
+  // URL et date
+  const analyzedUrl = metadata?.analyzed_url || 'URL inconnue';
+  const dateStr = formatDate(timestamp);
+  const relativeTime = formatRelativeTime(timestamp);
+
+  // Ordre des catégories (selon schema.json)
+  const categoryOrder = [
+    'data_collection',
+    'data_usage',
+    'data_sharing',
+    'user_rights',
+    'data_retention',
+    'security_measures',
+    'policy_changes',
+    'legal_compliance',
+    'cookies_tracking',
+    'children_privacy',
+    'user_content_rights',
+    'dispute_resolution'
+  ];
+
+  // Trier par couleur d'abord (red > amber > green), puis par ordre du schema
+  const sortOrder = { red: 0, amber: 1, green: 2, 'n/a': 3 };
+  const sortedCategories = Object.entries(categories)
+    .filter(([_, cat]) => cat.status !== 'n/a')
+    .sort(([keyA, a], [keyB, b]) => {
+      const colorDiff = sortOrder[a.status] - sortOrder[b.status];
+      if (colorDiff !== 0) return colorDiff;
+      return categoryOrder.indexOf(keyA) - categoryOrder.indexOf(keyB);
+    });
+
+  const categoryColors = {
+    green: 'bg-emerald-50 border-emerald-500',
+    amber: 'bg-amber-50 border-amber-500',
+    red: 'bg-red-50 border-red-500'
+  };
+
+  return `
+    <div class="overflow-hidden transition-shadow bg-white rounded-lg shadow-sm hover:shadow-md">
+      <!-- Header (toujours visible) -->
+      <button class="report-card-toggle w-full p-6 text-left transition-colors hover:bg-gray-50" data-card-id="${id}">
+        <div class="flex items-center gap-6">
+          <!-- Score -->
+          <div class="flex items-center justify-center flex-shrink-0 w-16 h-16 text-4xl font-bold text-white rounded-full ${gradeColors[grade]}">
+            ${grade}
+          </div>
+
+          <!-- Site Info -->
+          <div class="flex-1 min-w-0">
+            <h3 class="mb-2 text-xl font-semibold text-gray-900 truncate">${site_name || 'Site web'}</h3>
+            <p class="mb-1.5 text-sm text-gray-500 truncate">${analyzedUrl}</p>
+            <p class="text-xs text-gray-400">${dateStr} • ${relativeTime}</p>
+          </div>
+
+          <!-- Badges -->
+          <div class="flex flex-shrink-0 gap-3">
+            <div class="flex flex-col items-center gap-1">
+              <div class="flex items-center justify-center w-12 h-12 text-lg font-semibold rounded-lg bg-emerald-100 text-emerald-700">${statusCounts.green}</div>
+              <span class="text-[10px] text-gray-400 uppercase tracking-wide font-medium">OK</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="flex items-center justify-center w-12 h-12 text-lg font-semibold rounded-lg bg-amber-100 text-amber-700">${statusCounts.amber}</div>
+              <span class="text-[10px] text-gray-400 uppercase tracking-wide font-medium">Moy</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="flex items-center justify-center w-12 h-12 text-lg font-semibold rounded-lg bg-red-100 text-red-700">${statusCounts.red}</div>
+              <span class="text-[10px] text-gray-400 uppercase tracking-wide font-medium">Alert</span>
+            </div>
+          </div>
+
+          <!-- Chevron -->
+          <div class="flex-shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400 transition-transform chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </button>
+
+      <!-- Content (caché par défaut) -->
+      <div class="report-card-content hidden px-6 pb-6 pt-5 border-t border-gray-200" data-card-id="${id}">
+        <!-- Catégories -->
+        <div class="space-y-3">
+          ${sortedCategories.map(([key, cat]) => `
+            <div class="p-3.5 rounded-lg border-l-4 ${categoryColors[cat.status]}">
+              <div class="mb-1.5 text-sm font-semibold text-gray-900">${i18n.t(`categories.${key}`, currentLang)}</div>
+              <div class="text-xs leading-relaxed text-gray-600">${cat.comment}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ========================================
+// Toggle de la card (accordéon)
+// ========================================
+
+function toggleReportCard(button) {
+  const cardId = button.dataset.cardId;
+  const content = document.querySelector(`.report-card-content[data-card-id="${cardId}"]`);
+  const chevron = button.querySelector('.chevron');
+
+  const isHidden = content.classList.toggle('hidden');
+
+  // Rotation du chevron
+  if (isHidden) {
+    chevron.style.transform = 'rotate(0deg)';
+  } else {
+    chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
+// ========================================
+// Formatage de la date
+// ========================================
+
+function formatDate(timestamp) {
+  const locale = currentLang === 'fr' ? 'fr-FR' : 'en-US';
+  return new Date(timestamp).toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+
+function formatRelativeTime(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+  const week = 7 * day;
+  const month = 30 * day;
+
+  if (diff < minute) {
+    return i18n.t('justNow', currentLang);
+  } else if (diff < hour) {
+    const minutes = Math.floor(diff / minute);
+    return `${i18n.t('analyzedAgo', currentLang)} ${minutes} ${i18n.t('minutesAgo', currentLang)}`;
+  } else if (diff < day) {
+    const hours = Math.floor(diff / hour);
+    return `${i18n.t('analyzedAgo', currentLang)} ${hours} ${i18n.t('hoursAgo', currentLang)}`;
+  } else if (diff < week) {
+    const days = Math.floor(diff / day);
+    return `${i18n.t('analyzedAgo', currentLang)} ${days} ${i18n.t('daysAgo', currentLang)}`;
+  } else if (diff < month) {
+    const weeks = Math.floor(diff / week);
+    return `${i18n.t('analyzedAgo', currentLang)} ${weeks} ${i18n.t('weeksAgo', currentLang)}`;
+  } else {
+    const months = Math.floor(diff / month);
+    return `${i18n.t('analyzedAgo', currentLang)} ${months} ${i18n.t('monthsAgo', currentLang)}`;
+  }
+}
+
+// ========================================
+// Event Listeners
+// ========================================
+
+function setupEventListeners() {
+  // Recherche
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    applyFilters();
+  });
+
+  // Filtre par score
+  document.getElementById('filterScore').addEventListener('change', () => {
+    applyFilters();
+  });
+
+  // Tri
+  document.getElementById('sortBy').addEventListener('change', () => {
+    applyFilters();
+  });
+
+  // Supprimer l'historique
+  document.getElementById('clearHistoryButton').addEventListener('click', async () => {
+    const confirmMessage = i18n.t('clearHistoryConfirm', currentLang);
+    if (confirm(confirmMessage)) {
+      await clearHistory();
+    }
+  });
+}
+
+// ========================================
+// Supprimer l'historique
+// ========================================
+
+async function clearHistory() {
+  try {
+    // Supprimer de chrome.storage
+    await chrome.storage.local.set({ reportsHistory: [] });
+
+    // Réinitialiser les variables locales
+    allReports = [];
+    filteredReports = [];
+
+    // Re-render
+    renderReports();
+    updateReportCount();
+
+    console.log('[History] ✅ Historique supprimé');
+
+  } catch (error) {
+    console.error('[History] ❌ Erreur lors de la suppression:', error);
+  }
+}
+
+// ========================================
+// Filtrage et tri
+// ========================================
+
+function applyFilters() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+  const filterScore = document.getElementById('filterScore').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  // Filtrer
+  filteredReports = allReports.filter(entry => {
+    const { report } = entry;
+    const { site_name, categories } = report;
+
+    // Filtre par recherche
+    if (searchTerm && !site_name.toLowerCase().includes(searchTerm)) {
+      return false;
+    }
+
+    // Filtre par score
+    if (filterScore !== 'all') {
+      const grade = calculateGrade(categories);
+      if (grade !== filterScore) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Trier
+  filteredReports.sort((a, b) => {
+    switch (sortBy) {
+      case 'date-recent':
+        return b.timestamp - a.timestamp;
+      case 'date-old':
+        return a.timestamp - b.timestamp;
+      case 'score-ae':
+        return calculateGrade(a.report.categories).localeCompare(calculateGrade(b.report.categories));
+      case 'score-ea':
+        return calculateGrade(b.report.categories).localeCompare(calculateGrade(a.report.categories));
+      case 'name-az':
+        return a.report.site_name.localeCompare(b.report.site_name);
+      case 'name-za':
+        return b.report.site_name.localeCompare(a.report.site_name);
+      default:
+        return 0;
+    }
+  });
+
+  // Re-render
+  renderReports();
+  updateReportCount();
+}
+
+// ========================================
+// Compteur de rapports
+// ========================================
+
+function updateReportCount() {
+  const count = filteredReports.length;
+  const total = allReports.length;
+  const reportCountEl = document.getElementById('reportCount');
+
+  if (currentLang === 'fr') {
+    if (total === 0) {
+      reportCountEl.textContent = '• Aucun rapport';
+    } else if (count === total) {
+      reportCountEl.textContent = `• ${total} rapport${total > 1 ? 's' : ''}`;
+    } else {
+      reportCountEl.textContent = `• ${count} / ${total} rapport${total > 1 ? 's' : ''}`;
+    }
+  } else {
+    if (total === 0) {
+      reportCountEl.textContent = '• No reports';
+    } else if (count === total) {
+      reportCountEl.textContent = `• ${total} report${total > 1 ? 's' : ''}`;
+    } else {
+      reportCountEl.textContent = `• ${count} / ${total} report${total > 1 ? 's' : ''}`;
+    }
+  }
+}

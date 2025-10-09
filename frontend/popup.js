@@ -78,6 +78,9 @@ document.getElementById('scanButton').addEventListener('click', async () => {
 
     updateStatus('statusComplete', 'success');
 
+    // Ajouter au reportsHistory
+    await addToReportsHistory(report);
+
     // Logger le rapport complet dans le service worker
     chrome.runtime.sendMessage({
       type: 'ANALYSIS_COMPLETE',
@@ -201,6 +204,12 @@ document.getElementById('backFromTerms').addEventListener('click', () => {
   document.getElementById('mainPage').classList.remove('hidden');
 });
 
+// Navigation vers l'historique
+document.getElementById('historyLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL('pages/history/history.html') });
+});
+
 // ========================================
 // Initialisation
 // ========================================
@@ -279,5 +288,40 @@ async function continuePollingFromPopup(jobId) {
     // Réactiver le bouton une fois l'analyse terminée
     button.disabled = false;
     button.classList.remove('opacity-50', 'cursor-not-allowed');
+  }
+}
+
+/**
+ * Ajoute un rapport à l'historique (max 20 rapports)
+ */
+async function addToReportsHistory(report) {
+  try {
+    const { reportsHistory = [] } = await chrome.storage.local.get(['reportsHistory']);
+
+    console.log('[Clear Terms] 📚 Ajout au reportsHistory...');
+    console.log('[Clear Terms] Historique actuel:', reportsHistory.length, 'rapports');
+    console.log('[Clear Terms] Nouveau rapport:', report.site_name);
+
+    // Créer l'entrée d'historique
+    const historyEntry = {
+      id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: Date.now(),
+      report: report
+    };
+
+    // Ajouter au début du tableau (plus récent en premier)
+    reportsHistory.unshift(historyEntry);
+
+    // Limiter à 20 rapports max (FIFO)
+    if (reportsHistory.length > 20) {
+      reportsHistory.splice(20);
+    }
+
+    // Sauvegarder
+    await chrome.storage.local.set({ reportsHistory });
+    console.log('[Clear Terms] ✅ Rapport ajouté à l\'historique. Total:', reportsHistory.length);
+
+  } catch (error) {
+    console.error('[Clear Terms] ❌ Erreur lors de l\'ajout au reportsHistory:', error);
   }
 }

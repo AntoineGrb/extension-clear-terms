@@ -102,6 +102,9 @@ async function pollAutoJob(jobId, tabId) {
       if (job.status === 'done') {
         console.log('✅ Analyse auto terminée pour l\'onglet', tabId);
 
+        // Ajouter au reportsHistory
+        await addToReportsHistory(job.result);
+
         // Sauvegarder le rapport
         await chrome.storage.local.set({
           lastReport: job.result,
@@ -194,3 +197,34 @@ self.addEventListener('error', (event) => {
 self.addEventListener('unhandledrejection', (event) => {
   console.error('💥 Promise rejetée non gérée:', event.reason);
 });
+
+/**
+ * Ajoute un rapport à l'historique (max 20 rapports)
+ */
+async function addToReportsHistory(report) {
+  try {
+    const { reportsHistory = [] } = await chrome.storage.local.get(['reportsHistory']);
+
+    // Créer l'entrée d'historique
+    const historyEntry = {
+      id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: Date.now(),
+      report: report
+    };
+
+    // Ajouter au début du tableau (plus récent en premier)
+    reportsHistory.unshift(historyEntry);
+
+    // Limiter à 20 rapports max (FIFO)
+    if (reportsHistory.length > 20) {
+      reportsHistory.splice(20);
+    }
+
+    // Sauvegarder
+    await chrome.storage.local.set({ reportsHistory });
+    console.log('📚 Rapport ajouté à l\'historique. Total:', reportsHistory.length);
+
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'ajout au reportsHistory:', error);
+  }
+}

@@ -111,17 +111,30 @@ function displayReport(report) {
     <div class="px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-700">${statusCounts.red} ✗</div>
   `;
 
-  // Afficher la section rapport
+  // Afficher la section rapport et le titre + lien
   document.getElementById('reportSection').classList.remove('hidden');
+  document.getElementById('lastAnalysisTitle').classList.remove('hidden');
+  document.getElementById('historyLinkContainer').classList.remove('hidden');
 
-  // Afficher le contenu déplié par défaut
+  // Le contenu est déplié par défaut
   const content = document.getElementById('reportContent');
   content.classList.remove('hidden');
 
-  // Ajouter l'événement toggle pour l'accordéon
+  // Ajouter l'événement toggle pour l'accordéon avec rotation du chevron
   const toggleBtn = document.getElementById('reportToggle');
+  const chevron = toggleBtn.querySelector('svg');
+
+  // Chevron déjà en position "ouvert" au départ
+  chevron.style.transform = 'rotate(180deg)';
+
   toggleBtn.onclick = () => {
-    content.classList.toggle('hidden');
+    const isHidden = content.classList.toggle('hidden');
+    // Rotation du chevron
+    if (isHidden) {
+      chevron.style.transform = 'rotate(0deg)';
+    } else {
+      chevron.style.transform = 'rotate(180deg)';
+    }
   };
 
   // Sauvegarder le rapport

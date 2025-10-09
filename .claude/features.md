@@ -57,9 +57,9 @@
 - [ ] Page “Historique” des rapports.
 - [ ] Cartes repliables : score, catégories, détails
 - [ ] Recherche / tri (domaine, score, date)
-- [ ] Export / import JSON
 - [ ] Synchronisation avec `chrome.storage.local`
 - [ ] Personnalisation apparition toast 1 fois ou plus par rapport
+- [ ] Export CSV & JSON
 
 ---
 
