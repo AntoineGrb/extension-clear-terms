@@ -21,8 +21,33 @@ function extractCleanContent() {
       };
     }
 
-    // Supprimer les éléments inutiles (même logique que popup.js)
-    const elementsToRemove = clone.querySelectorAll('script, style, nav, header, footer, aside');
+    // Supprimer les éléments inutiles et dynamiques
+    const elementsToRemove = clone.querySelectorAll(`
+      script,
+      style,
+      nav,
+      header,
+      footer,
+      aside,
+      [role="dialog"],
+      [role="banner"],
+      [class*="cookie"],
+      [class*="Cookie"],
+      [id*="cookie"],
+      [id*="Cookie"],
+      [class*="consent"],
+      [class*="Consent"],
+      [id*="consent"],
+      [class*="banner"],
+      [class*="Banner"],
+      [class*="popup"],
+      [class*="Popup"],
+      [class*="modal"],
+      [class*="Modal"],
+      [aria-label*="cookie" i],
+      [aria-label*="consent" i],
+      [aria-label*="privacy banner" i]
+    `);
     elementsToRemove.forEach(el => el.remove());
 
     // Extraire le texte avec textContent (plus stable que innerText)

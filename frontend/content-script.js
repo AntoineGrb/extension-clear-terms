@@ -38,13 +38,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Lancer la détection au chargement de la page
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    // Attendre un peu que le contenu dynamique se charge
+  // Attendre que la page soit complètement chargée (y compris images, iframes, etc.)
+  window.addEventListener('load', () => {
+    // Attendre encore un peu pour le contenu lazy-loaded
+    setTimeout(detectAndAnalyze, 500);
+  });
+} else if (document.readyState === 'interactive') {
+  // Page en cours de chargement
+  window.addEventListener('load', () => {
     setTimeout(detectAndAnalyze, 500);
   });
 } else {
-  // Si la page est déjà chargée, lancer immédiatement
-  // (mais avec un petit délai pour les SPAs)
+  // Si la page est déjà complètement chargée (complete)
+  // Attendre quand même pour les SPAs et lazy loading
   setTimeout(detectAndAnalyze, 500);
 }
 
