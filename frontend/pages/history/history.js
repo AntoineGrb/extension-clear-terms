@@ -305,6 +305,16 @@ function setupEventListeners() {
       await clearHistory();
     }
   });
+
+  // Export CSV
+  document.getElementById('exportCsvButton').addEventListener('click', () => {
+    exportToCSV();
+  });
+
+  // Export JSON
+  document.getElementById('exportJsonButton').addEventListener('click', () => {
+    exportToJSON();
+  });
 }
 
 // ========================================
@@ -418,4 +428,157 @@ function updateReportCount() {
       reportCountEl.textContent = `• ${count} / ${total} report${total > 1 ? 's' : ''}`;
     }
   }
+}
+
+// ========================================
+// Export CSV
+// ========================================
+
+function exportToCSV() {
+  if (filteredReports.length === 0) {
+    alert(currentLang === 'fr' ? 'Aucun rapport à exporter' : 'No reports to export');
+    return;
+  }
+
+  // En-têtes CSV
+  const headers = [
+    'Site Name',
+    'URL',
+    'Analysis Date',
+    'Grade',
+    'Data Collection',
+    'Data Usage',
+    'Data Sharing',
+    'User Rights',
+    'Data Retention',
+    'Security Measures',
+    'Policy Changes',
+    'Legal Compliance',
+    'Cookies & Tracking',
+    'Children Privacy',
+    'User Content Rights',
+    'Dispute Resolution'
+  ];
+
+  // Convertir les rapports en lignes CSV
+  const rows = filteredReports.map(entry => {
+    const { report } = entry;
+    const { site_name, categories, metadata } = report;
+    const grade = calculateGrade(categories);
+    const analyzedUrl = metadata?.analyzed_url || 'Unknown';
+    const analysisDate = metadata?.analyzed_at || new Date().toISOString();
+
+    // Catégories dans l'ordre
+    const categoryOrder = [
+      'data_collection',
+      'data_usage',
+      'data_sharing',
+      'user_rights',
+      'data_retention',
+      'security_measures',
+      'policy_changes',
+      'legal_compliance',
+      'cookies_tracking',
+      'children_privacy',
+      'user_content_rights',
+      'dispute_resolution'
+    ];
+
+    const categoryStatuses = categoryOrder.map(key => {
+      const cat = categories[key];
+      return cat ? cat.status.toUpperCase() : 'N/A';
+    });
+
+    return [
+      escapeCSV(site_name),
+      escapeCSV(analyzedUrl),
+      escapeCSV(new Date(analysisDate).toISOString()),
+      grade,
+      ...categoryStatuses
+    ];
+  });
+
+  // Construire le CSV
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.join(','))
+  ].join('\n');
+
+  // Télécharger le fichier
+  downloadFile(csvContent, 'clear-terms-export.csv', 'text/csv');
+
+  console.log('[History] ✅ Export CSV réussi');
+}
+
+// ========================================
+// Export JSON
+// ========================================
+
+function exportToJSON() {
+  if (filteredReports.length === 0) {
+    alert(currentLang === 'fr' ? 'Aucun rapport à exporter' : 'No reports to export');
+    return;
+  }
+
+  // Préparer les données JSON
+  const exportData = {
+    exported_at: new Date().toISOString(),
+    report_count: filteredReports.length,
+    reports: filteredReports.map(entry => ({
+      id: entry.id,
+      timestamp: entry.timestamp,
+      report: entry.report
+    }))
+  };
+
+  // Convertir en JSON formaté
+  const jsonContent = JSON.stringify(exportData, null, 2);
+
+  // Télécharger le fichier
+  downloadFile(jsonContent, 'clear-terms-export.json', 'application/json');
+
+  console.log('[History] ✅ Export JSON réussi');
+}
+
+// ========================================
+// Utilitaires d'export
+// ========================================
+
+/**
+ * Échappe les valeurs pour CSV
+ */
+function escapeCSV(value) {
+  if (value == null) return '';
+
+  const stringValue = String(value);
+
+  // Si la valeur contient une virgule, un guillemet ou un retour à la ligne, on l'entoure de guillemets
+  if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+    // Échapper les guillemets en les doublant
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  }
+
+  return stringValue;
+}
+
+/**
+ * Télécharge un fichier
+ */
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.style.display = 'none';
+
+  document.body.appendChild(link);
+  link.click();
+
+  // Nettoyer
+  setTimeout(() => {
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, 100);
 }

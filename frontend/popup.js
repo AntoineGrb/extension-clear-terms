@@ -110,10 +110,20 @@ document.getElementById('scanButton').addEventListener('click', async () => {
 // ========================================
 
 /**
+ * Cache toutes les pages
+ */
+function hideAllPages() {
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('settingsPage').classList.add('hidden');
+  document.getElementById('aboutPage').classList.add('hidden');
+  document.getElementById('termsPage').classList.add('hidden');
+}
+
+/**
  * Affiche la page paramètres
  */
 function showSettingsPage() {
-  document.getElementById('mainPage').classList.add('hidden');
+  hideAllPages();
   document.getElementById('settingsPage').classList.remove('hidden');
 }
 
@@ -121,8 +131,24 @@ function showSettingsPage() {
  * Affiche la page principale
  */
 function showMainPage() {
-  document.getElementById('settingsPage').classList.add('hidden');
+  hideAllPages();
   document.getElementById('mainPage').classList.remove('hidden');
+}
+
+/**
+ * Affiche la page À propos
+ */
+function showAboutPage() {
+  hideAllPages();
+  document.getElementById('aboutPage').classList.remove('hidden');
+}
+
+/**
+ * Affiche la page Conditions de Service
+ */
+function showTermsPage() {
+  hideAllPages();
+  document.getElementById('termsPage').classList.remove('hidden');
 }
 
 // Event listeners pour la navigation
@@ -136,24 +162,20 @@ document.getElementById('backButton').addEventListener('click', () => {
 
 // Navigation vers À propos
 document.getElementById('aboutButton').addEventListener('click', () => {
-  document.getElementById('mainPage').classList.add('hidden');
-  document.getElementById('aboutPage').classList.remove('hidden');
+  showAboutPage();
 });
 
 document.getElementById('backFromAbout').addEventListener('click', () => {
-  document.getElementById('aboutPage').classList.add('hidden');
-  document.getElementById('mainPage').classList.remove('hidden');
+  showMainPage();
 });
 
 // Navigation vers Terms
 document.getElementById('termsButton').addEventListener('click', () => {
-  document.getElementById('mainPage').classList.add('hidden');
-  document.getElementById('termsPage').classList.remove('hidden');
+  showTermsPage();
 });
 
 document.getElementById('backFromTerms').addEventListener('click', () => {
-  document.getElementById('termsPage').classList.add('hidden');
-  document.getElementById('mainPage').classList.remove('hidden');
+  showMainPage();
 });
 
 // Navigation vers l'historique

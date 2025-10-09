@@ -34,8 +34,9 @@
     "scripting"
   ],
   "host_permissions": [
-    "http://localhost:3000/*",
-    "http://*/*",
-    "https://*/*"
-  ]
+    "http://localhost:3000/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

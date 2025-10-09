@@ -48,6 +48,12 @@ app.post('/scan', async (req, res) => {
       return res.status(400).json({ error: 'Le contenu est trop court pour être analysé (minimum 100 caractères)' });
     }
 
+    if (content.length > 100000) { // 100KB max
+      return res.status(413).json({ error: 'Contenu trop long' });
+    } 
+
+    //TODO : Ajouter validation URL si fournie + rate limiting
+
     // Valider et définir la langue par défaut
     const userLanguage = ['fr', 'en'].includes(user_language_preference) ? user_language_preference : 'fr';
 

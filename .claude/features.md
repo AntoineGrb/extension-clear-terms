@@ -65,7 +65,7 @@
 - [x] **Filtrage éléments dynamiques** : Bannières cookies, modales
 - [x] **Détection SPAs** : Attente dynamique du contenu (React/Vue)
 - [x] **Conformité RGPD** : Conditions de service conformes (préavis 30j, opt-out explicite)
-- [ ] Export CSV/JSON individuel par rapport
+- [x] Export CSV/JSON individuel par rapport
 
 ---
 
@@ -74,15 +74,13 @@
 ### Objectifs
 - Réduire les coûts via cache partagé
 - Mettre en place un système d’utilisateurs et de quotas
-- Gérer le paiement via Stripe
+- Gérer le paiement
 
 ### Actions
-- [ ] Implémentation SQLite (ou KV)
 - [ ] Endpoints `/auth`, `/me`, `/stripe/webhook`
-- [ ] Stripe Checkout + Customer Portal
+- [ ] Mettre en place le paiement avec la solution choisie
 - [ ] Système de quotas mensuels
 - [ ] Cache global par `domain + content_hash`
-- [ ] Tableau admin (liste des scans récents)
 
 ---
 
@@ -90,7 +88,7 @@
 
 ### Objectifs
 - Ajouter plus de détails et de transparence
-- Permettre un suivi des changements de CGU
+- Permettre un suivi des changements de  CGU
 
 ### Actions
 - [ ] Détails par catégorie : citations, exemples
