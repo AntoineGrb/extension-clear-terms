@@ -1,7 +1,7 @@
 // Service Worker pour Clear Terms
 // Permet de consulter les logs et gérer les événements en arrière-plan
 
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'http://localhost:3000'; //TODO : Mettre en config/env
 const POLL_INTERVAL = 2000;
 const MAX_POLL_ATTEMPTS = 60;
 

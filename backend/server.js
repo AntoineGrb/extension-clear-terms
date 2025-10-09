@@ -11,9 +11,10 @@ const PORT = process.env.PORT || 3000;
 // -----------------------------
 // Configuration
 // -----------------------------
-const PRIMARY_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash-exp';
+const PRIMARY_MODEL = process.env.GEMINI_MODEL;
 const FALLBACK_MODELS = [
   PRIMARY_MODEL,
+  'gemini-2.0-flash-exp',
   'gemini-2.5-flash',
   'gemini-flash-latest'
 ].filter(Boolean);
