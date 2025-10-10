@@ -12,7 +12,7 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/background.js"
   },
   "content_scripts": [
     {
@@ -23,7 +23,7 @@
         "content-script/extraction.js",
         "content-script/detection.js",
         "content-script/toast.js",
-        "content-script.js"
+        "content-script/content-script.js"
       ],
       "run_at": "document_idle"
     }
