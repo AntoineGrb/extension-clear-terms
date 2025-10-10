@@ -32,7 +32,7 @@ const translations = {
       data_retention: "Conservation des données",
       security_measures: "Mesures de sécurité",
       policy_changes: "Modifications de la politique",
-      legal_compliance: "Conformité légale",
+      legal_compliance: "Transferts internationaux",
       cookies_tracking: "Cookies & Tracking",
       children_privacy: "Protection des mineurs",
       user_content_rights: "Droits sur le contenu",
@@ -102,7 +102,7 @@ const translations = {
       statusNA: "⚪ N/A : Non mentionné dans le document",
 
       scoreTitle: "Calcul du score",
-      scoreText: "Le score global (A-E) est calculé en pondérant les catégories : chaque statut vert compte pour 2 points, ambre pour 1 point, rouge pour 0. Les catégories N/A ne sont pas prises en compte dans le calcul.",
+      scoreText: "Le score global (A-E) est calculé en pondérant les catégories selon leur impact réel sur vos droits. Chaque catégorie a un poids spécifique : Résolution des litiges (13%), Partage des données (15%), Transferts internationaux (6%), etc. Pour chaque catégorie : vert = 2 points, ambre = 1 point, rouge = 0. Le score final est normalisé entre 0 et 1 puis converti en grade (A≥80%, B≥65%, C≥50%, D≥35%, E<35%).",
 
       privacyTitle: "Confidentialité",
       privacyText: "Vos données ne sont jamais stockées de manière identifiable. L'analyse est effectuée en temps réel et les résultats sont mis en cache anonymement (par hash du contenu) pour optimiser les performances et réduire les coûts.",
@@ -212,7 +212,7 @@ const translations = {
       data_retention: "Data Retention",
       security_measures: "Security Measures",
       policy_changes: "Policy Changes",
-      legal_compliance: "Legal Compliance",
+      legal_compliance: "International Transfers",
       cookies_tracking: "Cookies & Tracking",
       children_privacy: "Children's Privacy",
       user_content_rights: "User Content Rights",
@@ -282,7 +282,7 @@ const translations = {
       statusNA: "⚪ N/A: Not mentioned in the document",
 
       scoreTitle: "Score Calculation",
-      scoreText: "The overall score (A-E) is calculated by weighting categories: each green status counts for 2 points, amber for 1 point, red for 0. N/A categories are not included in the calculation.",
+      scoreText: "The overall score (A-E) is calculated by weighting categories according to their real impact on your rights. Each category has a specific weight: Dispute Resolution (13%), Data Sharing (15%), International Transfers (6%), etc. For each category: green = 2 points, amber = 1 point, red = 0. The final score is normalized between 0 and 1, then converted to a grade (A≥80%, B≥65%, C≥50%, D≥35%, E<35%).",
 
       privacyTitle: "Privacy",
       privacyText: "Your data is never stored in an identifiable manner. Analysis is performed in real-time and results are cached anonymously (by content hash) to optimize performance and reduce costs.",

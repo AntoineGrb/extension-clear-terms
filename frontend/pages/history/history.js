@@ -104,20 +104,20 @@ function createReportCard(entry) {
 
   // Couleur du score
   const gradeColors = {
-    A: 'bg-emerald-500',
-    B: 'bg-lime-500',
-    C: 'bg-amber-500',
-    D: 'bg-red-500',
-    E: 'bg-red-600'
+    A: 'bg-emerald-600',
+    B: 'bg-green-500',
+    C: 'bg-yellow-500',
+    D: 'bg-orange-500',
+    E: 'bg-red-500'
   };
 
   // Bordure selon le score
   const borderColors = {
-    A: 'border-emerald-500',
-    B: 'border-lime-500',
-    C: 'border-amber-500',
-    D: 'border-red-500',
-    E: 'border-red-600'
+    A: 'border-emerald-600',
+    B: 'border-green-500',
+    C: 'border-yellow-500',
+    D: 'border-orange-500',
+    E: 'border-red-500'
   };
 
   // URL et date d'analyse

@@ -44,11 +44,11 @@ app.post('/scan', async (req, res) => {
       return res.status(400).json({ error: 'Le champ "content" est requis et doit être une chaîne de caractères' });
     }
 
-    if (content.length < 100) {
-      return res.status(400).json({ error: 'Le contenu est trop court pour être analysé (minimum 100 caractères)' });
+    if (content.length < 300) {
+      return res.status(400).json({ error: 'Le contenu est trop court pour être analysé (minimum 300 caractères)' });
     }
 
-    if (content.length > 100000) { // 100KB max
+    if (content.length > 500000) {
       return res.status(413).json({ error: 'Contenu trop long' });
     } 
 

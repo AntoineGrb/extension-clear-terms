@@ -13,7 +13,7 @@ const SEARCH_ENGINE_PATTERNS = [
   'google.es/search',
   'google.it/search',
   'bing.com/search',
-  'duckduckgo.com/',
+  'duckduckgo.com/?',
   'yahoo.com/search',
   'yahoo.fr/search',
   'ecosia.org/search',

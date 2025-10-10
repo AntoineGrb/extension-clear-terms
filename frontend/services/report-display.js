@@ -76,13 +76,13 @@ function displayReport(report) {
   const gradeEl = document.getElementById('grade');
   gradeEl.textContent = grade;
   const gradeColors = {
-    A: 'bg-emerald-500',
-    B: 'bg-lime-500',
-    C: 'bg-amber-500',
-    D: 'bg-red-500',
-    E: 'bg-red-600'
+    A: 'bg-emerald-600',
+    B: 'bg-green-500',
+    C: 'bg-yellow-500',
+    D: 'bg-orange-500',
+    E: 'bg-red-500'
   };
-  gradeEl.className = `w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold text-white flex-shrink-0 ${gradeColors[grade] || 'bg-gray-400'}`;
+  gradeEl.className = `w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0 ${gradeColors[grade] || 'bg-gray-400'}`;
 
   // Compter les badges
   const statusCounts = { green: 0, amber: 0, red: 0 };

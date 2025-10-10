@@ -50,11 +50,20 @@ function extractCleanContent() {
     `);
     elementsToRemove.forEach(el => el.remove());
 
-    // Extraire le texte avec textContent (plus stable que innerText)
+    // Vérifier à nouveau que clone.body existe après les suppressions
+    if (!clone.body) {
+      console.error('[Clear Terms] Erreur: clone.body est devenu null après suppressions');
+      return {
+        text: document.body ? (document.body.textContent || '').replace(/\s+/g, ' ').trim() : '',
+        url: window.location.href
+      };
+    }
+
+    // Extraire le texte avec textContent
     const text = clone.body.textContent || '';
 
     // Nettoyer les espaces multiples et sauts de ligne excessifs
-    const cleanedText = text.replace(/\s+/g, ' ').trim();
+    let cleanedText = text.replace(/\s+/g, ' ').trim();
 
     return {
       text: cleanedText,
