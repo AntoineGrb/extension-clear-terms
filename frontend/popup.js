@@ -184,20 +184,6 @@ document.getElementById('historyLink').addEventListener('click', (e) => {
 // Paramètres
 // ========================================
 
-// Event listener pour le changement de langue
-document.getElementById('languageSelect').addEventListener('change', (e) => {
-  const newLang = e.target.value;
-  saveLanguagePreference(newLang);
-  applyTranslations(newLang); // Appliquer immédiatement les traductions
-
-  // Rafraîchir le rapport si présent
-  chrome.storage.local.get(['lastReport'], (result) => {
-    if (result.lastReport) {
-      displayReport(result.lastReport);
-    }
-  });
-});
-
 // Event listener pour l'activation/désactivation du toast
 document.getElementById('toastEnabled').addEventListener('change', (e) => {
   chrome.storage.local.set({ toastEnabled: e.target.checked });
@@ -241,19 +227,9 @@ document.getElementById('copyUrlButton').addEventListener('click', async (e) => 
 // ========================================
 
 // Charger le dernier rapport et la langue au démarrage
-chrome.storage.local.get(['lastReport', 'userLanguage'], async (result) => {
-  // Définir la langue (préférence utilisateur ou détection navigateur)
-  let lang;
-  if (result.userLanguage) {
-    lang = result.userLanguage;
-  } else {
-    // Première utilisation : détecter la langue du navigateur
-    lang = detectBrowserLanguage();
-    // Sauvegarder cette détection comme préférence initiale
-    saveLanguagePreference(lang);
-  }
-
-  document.getElementById('languageSelect').value = lang;
+chrome.storage.local.get(['lastReport'], async (result) => {
+  // Toujours détecter automatiquement la langue du navigateur
+  const lang = detectBrowserLanguage();
 
   // Appliquer les traductions
   applyTranslations(lang);

@@ -41,9 +41,8 @@ async function handleAutoAnalysis(url, content, tabId) {
     console.log('📊 [AUTO] Hash du contenu:', contentHash);
     console.log('📏 [AUTO] Longueur du contenu:', content.length, 'caractères');
 
-    // Récupérer la langue de l'utilisateur
-    const { userLanguage } = await chrome.storage.local.get(['userLanguage']);
-    const lang = userLanguage || detectBrowserLanguage();
+    // Toujours détecter automatiquement la langue du navigateur
+    const lang = detectBrowserLanguage();
 
     // Lancer l'analyse
     const response = await fetch(`${BACKEND_URL}/scan`, {

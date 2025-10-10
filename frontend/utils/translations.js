@@ -32,6 +32,12 @@ function applyTranslations(lang) {
     const key = el.getAttribute('data-i18n-title');
     el.setAttribute('title', i18n.t(key, lang));
   });
+
+  // Traduire les placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.setAttribute('placeholder', i18n.t(key, lang));
+  });
 }
 
 /**
@@ -47,25 +53,10 @@ function detectBrowserLanguage() {
 }
 
 /**
- * Charge la préférence de langue
+ * Charge la préférence de langue (toujours auto-détectée)
  */
 async function loadLanguagePreference() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['userLanguage'], (result) => {
-      // Si pas de préférence sauvegardée, utiliser la langue du navigateur
-      if (!result.userLanguage) {
-        const detectedLang = detectBrowserLanguage();
-        resolve(detectedLang);
-      } else {
-        resolve(result.userLanguage);
-      }
-    });
-  });
+  // Toujours retourner la langue détectée automatiquement du navigateur
+  return detectBrowserLanguage();
 }
 
-/**
- * Sauvegarde la préférence de langue
- */
-function saveLanguagePreference(lang) {
-  chrome.storage.local.set({ userLanguage: lang });
-}

@@ -15,6 +15,10 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
     const cleanedContent = cleanText(content);
     const contentHash = calculateHash(cleanedContent);
 
+    console.log(`📊 [JOB ${jobId}] Hash calculé: ${contentHash.substring(0, 16)}...`);
+    console.log(`📏 [JOB ${jobId}] Longueur contenu nettoyé: ${cleanedContent.length} caractères`);
+    console.log(`🌍 [JOB ${jobId}] Langue demandée: ${userLanguage}`);
+
     // Vérifier le cache pour cette langue spécifique
     if (cache.has(contentHash)) {
       const cachedEntry = cache.get(contentHash);
@@ -33,20 +37,29 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
     // Charger le prompt et le schéma
     let promptTemplate = await loadPromptTemplate();
 
-    // Ajouter la préférence de langue dans le prompt (instruction forte)
+    // Ajouter la préférence de langue dans le prompt (instruction TRÈS forte au début)
     const languageMap = {
       'fr': 'français',
       'en': 'English'
     };
     const languageName = languageMap[userLanguage] || 'English';
 
-    const languageInstruction = `\n\n⚠️ CRITICAL INSTRUCTION - LANGUAGE REQUIREMENT ⚠️
-**YOU MUST GENERATE ALL "comment" FIELDS IN ${languageName.toUpperCase()} (${userLanguage.toUpperCase()}).**
-Even if the source document is in another language, ALL your analysis comments MUST be written in ${languageName}.
-This is a mandatory requirement. Do not write comments in any other language.
----\n`;
+    const languageInstruction = `🚨🚨🚨 CRITICAL INSTRUCTION - MANDATORY LANGUAGE REQUIREMENT 🚨🚨🚨
 
-    const fullPrompt = promptTemplate + languageInstruction + '\n\n' + cleanedContent;
+OUTPUT LANGUAGE: ${languageName.toUpperCase()} (${userLanguage.toUpperCase()})
+
+YOU MUST WRITE ALL YOUR ANALYSIS COMMENTS ("comment" FIELDS IN THE JSON) IN ${languageName.toUpperCase()} ONLY.
+- Even if the source document is written in French, German, Spanish, or any other language
+- Even if you are analyzing French Terms of Service, write your comments in ${languageName.toUpperCase()}
+- This is MANDATORY and NON-NEGOTIABLE
+- DO NOT use any other language for the "comment" fields
+- The "status" field remains in English (green/amber/red/n/a)
+- Only the "comment" fields must be in ${languageName.toUpperCase()}
+---
+
+`;
+
+    const fullPrompt = languageInstruction + promptTemplate + '\n\n' + cleanedContent;
 
     // Appeler Gemini
     const aiResponse = await callGemini(fullPrompt, fallbackModels, apiKey);

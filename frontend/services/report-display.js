@@ -10,9 +10,9 @@ function displayReport(report) {
   // Afficher le nom du site (de l'IA)
   document.getElementById('siteName').textContent = site_name || 'Site web';
 
-  // Récupérer la langue pour la date
-  chrome.storage.local.get(['userLanguage'], (result) => {
-    const lang = result.userLanguage || 'fr';
+  // Récupérer la langue du navigateur
+  const lang = detectBrowserLanguage();
+  {
 
     // Utiliser la vraie date d'analyse (celle du rapport)
     const timestamp = metadata?.analyzed_at ? new Date(metadata.analyzed_at).getTime() : Date.now();
@@ -70,7 +70,7 @@ function displayReport(report) {
         </div>
       `)
       .join('');
-  });
+  }
 
   // Afficher le grade avec Tailwind colors
   const gradeEl = document.getElementById('grade');
@@ -185,26 +185,24 @@ function updateStatus(messageKey, type = '') {
   };
 
   if (type && messageKey) {
-    // Récupérer la langue pour traduire le message
-    chrome.storage.local.get(['userLanguage'], (result) => {
-      const lang = result.userLanguage || 'fr';
+    // Récupérer la langue du navigateur
+    const lang = detectBrowserLanguage();
 
-      // Si le message commence par "statusError:", on concatène
-      let message;
-      if (messageKey.startsWith('ERROR:')) {
-        const errorText = messageKey.substring(6);
-        message = `${i18n.t('statusError', lang)} ${errorText}`;
-      } else {
-        message = i18n.t(messageKey, lang);
-      }
+    // Si le message commence par "statusError:", on concatène
+    let message;
+    if (messageKey.startsWith('ERROR:')) {
+      const errorText = messageKey.substring(6);
+      message = `${i18n.t('statusError', lang)} ${errorText}`;
+    } else {
+      message = i18n.t(messageKey, lang);
+    }
 
-      statusEl.innerHTML = `
-        <div class="flex items-center gap-2 mt-3 p-3 rounded-md ${styles[type] || ''}">
-          ${icons[type] || ''}
-          <span class="text-xs font-medium">${message}</span>
-        </div>
-      `;
-    });
+    statusEl.innerHTML = `
+      <div class="flex items-center gap-2 mt-3 p-3 rounded-md ${styles[type] || ''}">
+        ${icons[type] || ''}
+        <span class="text-xs font-medium">${message}</span>
+      </div>
+    `;
   } else {
     statusEl.innerHTML = '';
   }

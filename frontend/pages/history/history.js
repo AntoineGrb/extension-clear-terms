@@ -11,9 +11,8 @@ let currentLang = 'fr';
 // ========================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-  // Charger la langue de l'utilisateur
-  const { userLanguage } = await chrome.storage.local.get(['userLanguage']);
-  currentLang = userLanguage || detectBrowserLanguage();
+  // Toujours détecter automatiquement la langue du navigateur
+  currentLang = detectBrowserLanguage();
   applyTranslations(currentLang);
 
   // Charger les rapports
