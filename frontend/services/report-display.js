@@ -7,7 +7,7 @@ function displayReport(report) {
   // Calculer le grade
   const grade = calculateGrade(categories);
 
-  // Afficher le nom du site (de l'IA)
+  // Afficher le nom du site 
   document.getElementById('siteName').textContent = site_name || 'Site web';
 
   // Récupérer la langue du navigateur
@@ -72,7 +72,7 @@ function displayReport(report) {
       .join('');
   }
 
-  // Afficher le grade avec Tailwind colors
+  // Afficher le grade
   const gradeEl = document.getElementById('grade');
   gradeEl.textContent = grade;
   const gradeColors = {
@@ -92,7 +92,7 @@ function displayReport(report) {
     }
   });
 
-  // Afficher les badges avec Tailwind
+  // Afficher les badges
   const badgesEl = document.getElementById('badges');
   badgesEl.innerHTML = `
     <div class="px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">${statusCounts.green} ✓</div>

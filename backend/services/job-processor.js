@@ -4,7 +4,7 @@ const { loadPromptTemplate, callGemini } = require('../utils/gemini');
 /**
  * Traite un job d'analyse
  */
-async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiKey) {
+async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiKey, enforceCacheLimit) {
   const job = jobs.get(jobId);
   if (!job) return;
 
@@ -14,7 +14,7 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
     const { url, content, userLanguage } = job;
     const cleanedContent = cleanText(content);
 
-    // Calculer le hash basé sur l'URL (pas le contenu)
+    // Calculer le hash basé sur l'URL
     const urlHash = calculateUrlHash(url);
 
     console.log(`🔗 [JOB ${jobId}] URL: ${url}`);
@@ -25,21 +25,37 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
     if (cache.has(urlHash)) {
       const cachedEntry = cache.get(urlHash);
 
-      // Si le rapport dans la langue demandée existe déjà
-      if (cachedEntry.reports && cachedEntry.reports[userLanguage]) {
-        console.log(`📦 Rapport ${userLanguage.toUpperCase()} trouvé en cache pour URL: ${url}`);
-        job.result = cachedEntry.reports[userLanguage];
-        job.status = 'done';
-        return;
-      }
+      // Vérifier si le cache est expiré (24h)
+      const now = new Date();
+      const cacheAge = now - new Date(cachedEntry.createdAt);
+      const MAX_CACHE_AGE = 24 * 60 * 60 * 1000; // 24 heures 
 
-      console.log(`📦 Cache trouvé mais pas de version ${userLanguage.toUpperCase()}, génération en cours...`);
+      if (cacheAge > MAX_CACHE_AGE) {
+        console.log(`⏰ Cache expiré pour URL: ${url} (âge: ${Math.round(cacheAge / 1000 / 60 / 60)}h)`);
+        cache.delete(urlHash);
+        console.log(`🗑️  Entrée cache supprimée pour: ${url}`);
+      } else {
+        // Cache valide, vérifier si le rapport dans la langue demandée existe
+        if (cachedEntry.reports && cachedEntry.reports[userLanguage]) {
+          const cacheAgeHours = Math.round(cacheAge / 1000 / 60 / 60);
+          console.log(`📦 Rapport ${userLanguage.toUpperCase()} trouvé en cache pour URL: ${url} (âge: ${cacheAgeHours}h)`);
+
+          // Mettre à jour lastAccessedAt pour LRU
+          cachedEntry.lastAccessedAt = new Date().toISOString();
+
+          job.result = cachedEntry.reports[userLanguage];
+          job.status = 'done';
+          return;
+        }
+
+        console.log(`📦 Cache trouvé mais pas de version ${userLanguage.toUpperCase()}, génération en cours...`);
+      }
     }
 
     // Charger le prompt et le schéma
     let promptTemplate = await loadPromptTemplate();
 
-    // Ajouter la préférence de langue dans le prompt (instruction TRÈS forte au début)
+    // Ajouter la préférence de langue dans le prompt (instruction TRÈS forte pour éviter des erreurs de Gemini)
     const languageMap = {
       'fr': 'français',
       'en': 'English'
@@ -117,16 +133,24 @@ YOU MUST WRITE ALL YOUR ANALYSIS COMMENTS ("comment" FIELDS IN THE JSON) IN ${la
       // Ajouter la nouvelle langue au cache existant
       const existing = cache.get(urlHash);
       existing.reports[userLanguage] = report;
+      existing.lastAccessedAt = new Date().toISOString();
       console.log(`💾 Rapport ${userLanguage.toUpperCase()} ajouté au cache existant pour: ${url}`);
     } else {
+      // Vérifier la limite du cache avant d'ajouter une nouvelle entrée
+      if (enforceCacheLimit) {
+        enforceCacheLimit();
+      }
+
       // Créer une nouvelle entrée cache
+      const now = new Date().toISOString();
       cache.set(urlHash, {
         url: url,
         domain: job.url ? new URL(job.url).hostname : 'unknown',
         reports: {
           [userLanguage]: report
         },
-        createdAt: new Date().toISOString()
+        createdAt: now,
+        lastAccessedAt: now
       });
       console.log(`💾 Nouvelle entrée cache créée pour: ${url}`);
     }

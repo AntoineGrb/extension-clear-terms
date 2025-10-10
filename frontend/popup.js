@@ -116,32 +116,23 @@ function hideAllPages() {
 }
 
 /**
- * Affiche la page paramètres
+ * Afficher les différentes pages du popup
  */
 function showSettingsPage() {
   hideAllPages();
   document.getElementById('settingsPage').classList.remove('hidden');
 }
 
-/**
- * Affiche la page principale
- */
 function showMainPage() {
   hideAllPages();
   document.getElementById('mainPage').classList.remove('hidden');
 }
 
-/**
- * Affiche la page À propos
- */
 function showAboutPage() {
   hideAllPages();
   document.getElementById('aboutPage').classList.remove('hidden');
 }
 
-/**
- * Affiche la page Conditions de Service
- */
 function showTermsPage() {
   hideAllPages();
   document.getElementById('termsPage').classList.remove('hidden');
@@ -310,7 +301,6 @@ async function addToReportsHistory(report) {
       report: report
     };
 
-    // Ajouter au début du tableau (plus récent en premier)
     reportsHistory.unshift(historyEntry);
 
     // Limiter à 100 rapports max (FIFO)
@@ -318,7 +308,6 @@ async function addToReportsHistory(report) {
       reportsHistory.splice(100);
     }
 
-    // Sauvegarder
     await chrome.storage.local.set({ reportsHistory });
 
   } catch (error) {

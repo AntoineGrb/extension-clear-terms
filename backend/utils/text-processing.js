@@ -8,7 +8,7 @@ function calculateUrlHash(url) {
     const urlObj = new URL(url);
 
     // Normaliser l'URL : protocole + hostname + pathname (sans query params ni fragment)
-    // Exception : garder certains params importants si présents (country, lang, region)
+    // Garder certains params importants si présents (country, lang, region)
     const importantParams = ['country', 'lang', 'region', 'locale'];
     const searchParams = new URLSearchParams(urlObj.search);
     const keptParams = [];

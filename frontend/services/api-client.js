@@ -1,4 +1,4 @@
-const BACKEND_URL = 'http://localhost:3000';
+const BACKEND_URL = 'http://localhost:3000'; //TODO: mettre en config
 const POLL_INTERVAL = 2000; // 2 secondes
 const MAX_POLL_ATTEMPTS = 60; // 2 minutes max
 
@@ -20,7 +20,7 @@ async function extractPageContent() {
     throw err;
   }
 
-  // Demander au content script d'extraire le contenu (même logique que scan auto)
+  // Demander au content script d'extraire le contenu
   try {
     const response = await chrome.tabs.sendMessage(tab.id, {
       type: 'EXTRACT_CONTENT'

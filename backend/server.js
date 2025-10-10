@@ -19,12 +19,48 @@ const FALLBACK_MODELS = [
   'gemini-flash-latest'
 ].filter(Boolean);
 
+const MAX_CACHE_ENTRIES = 1000; // Limite du cache : 1000 URLs max (avec FR + EN)
+
 // Stockage en mémoire pour le MVP (jobs et cache)
 const jobs = new Map(); // job_id -> { status, url, result, error, createdAt }
-const cache = new Map(); // url_hash -> { url, domain, reports: { fr: {}, en: {} }, createdAt }
+const cache = new Map(); // url_hash -> { url, domain, reports: { fr: {}, en: {} }, createdAt, lastAccessedAt }
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
+
+// -----------------------------
+// Fonctions utilitaires du cache
+// -----------------------------
+
+/**
+ * Vérifie et applique la limite du cache (LRU)
+ * Si le cache atteint ou dépasse MAX_CACHE_ENTRIES, supprime les entrées les moins récemment utilisées
+ */
+function enforceCacheLimit() {
+  if (cache.size < MAX_CACHE_ENTRIES) {
+    return; // Pas besoin de nettoyer
+  }
+
+  const entriesToDelete = cache.size - MAX_CACHE_ENTRIES + 1; // +1 pour faire de la place pour la nouvelle entrée
+  console.log(`⚠️  Limite du cache atteinte (${cache.size}/${MAX_CACHE_ENTRIES}). Suppression de ${entriesToDelete} entrée(s) les plus anciennes...`);
+
+  // Trier les entrées par lastAccessedAt (les plus anciennes en premier)
+  const sortedEntries = Array.from(cache.entries())
+    .sort((a, b) => {
+      const timeA = new Date(a[1].lastAccessedAt || a[1].createdAt);
+      const timeB = new Date(b[1].lastAccessedAt || b[1].createdAt);
+      return timeA - timeB;
+    });
+
+  // Supprimer les plus anciennes
+  for (let i = 0; i < entriesToDelete; i++) {
+    const [urlHash, entry] = sortedEntries[i];
+    cache.delete(urlHash);
+    console.log(`🗑️  Cache LRU supprimé: ${entry.url}`);
+  }
+
+  console.log(`✅ Cache réduit à ${cache.size} entrées`);
+}
 
 // -----------------------------
 // Routes API
@@ -49,18 +85,16 @@ app.post('/scan', async (req, res) => {
     }
 
     if (content.length > 500000) {
-      return res.status(413).json({ error: 'Contenu trop long' });
+      return res.status(413).json({ error: 'Contenu trop long, plus de 500 000 caractères' });
     } 
 
     //TODO : Ajouter validation URL si fournie + rate limiting
 
     // Valider et définir la langue par défaut
-    const userLanguage = ['fr', 'en'].includes(user_language_preference) ? user_language_preference : 'fr';
-
-    // Générer un job_id unique
-    const jobId = crypto.randomUUID();
+    const userLanguage = ['fr', 'en'].includes(user_language_preference) ? user_language_preference : 'en';
 
     // Créer le job
+    const jobId = crypto.randomUUID();
     jobs.set(jobId, {
       status: 'queued',
       url: url || 'unknown',
@@ -72,7 +106,7 @@ app.post('/scan', async (req, res) => {
     });
 
     // Lancer le traitement en arrière-plan
-    processJob(jobId, jobs, cache, PRIMARY_MODEL, FALLBACK_MODELS, process.env.GEMINI_API_KEY);
+    processJob(jobId, jobs, cache, PRIMARY_MODEL, FALLBACK_MODELS, process.env.GEMINI_API_KEY, enforceCacheLimit);
 
     res.json({ job_id: jobId });
 
@@ -130,7 +164,7 @@ app.get('/report', (req, res) => {
   }
 
   // Si une langue est spécifiée, retourner uniquement cette version
-  const language = ['fr', 'en'].includes(lang) ? lang : 'fr';
+  const language = ['fr', 'en'].includes(lang) ? lang : 'en';
 
   if (cachedEntry.reports && cachedEntry.reports[language]) {
     res.json(cachedEntry.reports[language]);
@@ -169,6 +203,29 @@ setInterval(() => {
     }
   }
 }, 10 * 60 * 1000); // Toutes les 10 minutes
+
+// -----------------------------
+// Nettoyage périodique du cache (24h d'expiration)
+// -----------------------------
+setInterval(() => {
+  const now = new Date();
+  const MAX_CACHE_AGE = 24 * 60 * 60 * 1000; // 24 heures
+  let deletedCount = 0;
+
+  for (const [urlHash, cachedEntry] of cache.entries()) {
+    const cacheAge = now - new Date(cachedEntry.createdAt);
+
+    if (cacheAge > MAX_CACHE_AGE) {
+      cache.delete(urlHash);
+      deletedCount++;
+      console.log(`🗑️  Cache expiré supprimé: ${cachedEntry.url} (âge: ${Math.round(cacheAge / 1000 / 60 / 60)}h)`);
+    }
+  }
+
+  if (deletedCount > 0) {
+    console.log(`🧹 Nettoyage du cache terminé: ${deletedCount} entrée(s) supprimée(s). Cache restant: ${cache.size}`);
+  }
+}, 60 * 60 * 1000); // Toutes les heures
 
 // -----------------------------
 // Lancement du serveur

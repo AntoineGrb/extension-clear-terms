@@ -54,15 +54,3 @@ function calculateGrade(categories) {
   if (score >= 0.35) return 'D';
   return 'E';
 }
-
-/**
- * Obtient le nom de domaine depuis une URL
- */
-function getDomainName(url) {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.hostname.replace('www.', '');
-  } catch {
-    return 'Site web';
-  }
-}
