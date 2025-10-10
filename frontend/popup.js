@@ -26,10 +26,6 @@ document.getElementById('scanButton').addEventListener('click', async () => {
       throw new Error('Le contenu de la page est trop court pour être analysé');
     }
 
-    const contentHash = await calculateHashInPopup(text);
-    console.log('📊 [MANUEL] Hash du contenu:', contentHash);
-    console.log('📏 [MANUEL] Longueur du contenu:', text.length, 'caractères');
-
     // VALIDATION : Vérifier que c'est bien des CGU
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -49,10 +45,7 @@ document.getElementById('scanButton').addEventListener('click', async () => {
         return;
       }
 
-      console.log('[Clear Terms] Validation réussie ✓');
-
     } catch (validationError) {
-      console.warn('[Clear Terms] Impossible de valider (content script non chargé?):', validationError);
       // Continuer quand même l'analyse en cas d'erreur de validation
     }
 
@@ -91,14 +84,17 @@ document.getElementById('scanButton').addEventListener('click', async () => {
     displayReport(report);
 
   } catch (error) {
-    console.error('Erreur:', error);
     chrome.runtime.sendMessage({
       type: 'ANALYSIS_ERROR',
       url: currentUrl,
-      error: error.message
+      error: error.message,
+      errorCode: error.code
     });
 
-    updateStatus(`ERROR:${error.message}`, 'error');
+    // Classifier et formater l'erreur pour l'utilisateur
+    const lang = await loadLanguagePreference();
+    const formattedError = formatErrorForUser(error, lang);
+    updateStatus(`ERROR:${formattedError.message}`, 'error');
   } finally {
     button.disabled = false;
     button.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -205,19 +201,16 @@ document.getElementById('languageSelect').addEventListener('change', (e) => {
 // Event listener pour l'activation/désactivation du toast
 document.getElementById('toastEnabled').addEventListener('change', (e) => {
   chrome.storage.local.set({ toastEnabled: e.target.checked });
-  console.log('[Clear Terms] Détection automatique:', e.target.checked ? 'activée' : 'désactivée');
 });
 
 // Event listener pour la position du toast
 document.getElementById('toastPosition').addEventListener('change', (e) => {
   chrome.storage.local.set({ toastPosition: e.target.value });
-  console.log('[Clear Terms] Position du toast:', e.target.value);
 });
 
 // Event listener pour la durée du toast
 document.getElementById('toastDuration').addEventListener('change', (e) => {
   chrome.storage.local.set({ toastDuration: parseInt(e.target.value) });
-  console.log('[Clear Terms] Durée du toast:', e.target.value, 'ms');
 });
 
 // Event listener pour copier l'URL
@@ -238,10 +231,8 @@ document.getElementById('copyUrlButton').addEventListener('click', async (e) => 
       e.currentTarget.classList.remove('text-green-500');
       e.currentTarget.classList.add('text-gray-400');
     }, 1000);
-
-    console.log('[Clear Terms] URL copiée:', fullUrl);
   } catch (error) {
-    console.error('[Clear Terms] Erreur copie URL:', error);
+    // Erreur silencieuse
   }
 });
 
@@ -289,7 +280,6 @@ chrome.storage.local.get(['lastReport', 'userLanguage'], async (result) => {
 
       if (autoJob && autoJob.status === 'running') {
         // Analyse auto en cours : afficher le loader et griser le bouton
-        console.log('[Clear Terms] Analyse auto en cours, affichage du loader');
         const button = document.getElementById('scanButton');
         button.disabled = true;
         button.classList.add('opacity-50', 'cursor-not-allowed');
@@ -298,13 +288,11 @@ chrome.storage.local.get(['lastReport', 'userLanguage'], async (result) => {
       } else {
         // Pas d'analyse en cours : afficher le dernier rapport global
         if (result.lastReport) {
-          console.log('[Clear Terms] Pas d\'analyse en cours, affichage du dernier rapport global');
           displayReport(result.lastReport);
         }
       }
     });
   } catch (error) {
-    console.error('[Clear Terms] Erreur lors de la vérification de l\'analyse auto:', error);
     // Fallback: afficher le dernier rapport si disponible
     if (result.lastReport) {
       displayReport(result.lastReport);
@@ -322,8 +310,9 @@ async function continuePollingFromPopup(jobId) {
     updateStatus('statusComplete', 'success');
     displayReport(report);
   } catch (error) {
-    console.error('[Clear Terms] Erreur lors du polling depuis la popup:', error);
-    updateStatus(`ERROR:${error.message}`, 'error');
+    const lang = await loadLanguagePreference();
+    const formattedError = formatErrorForUser(error, lang);
+    updateStatus(`ERROR:${formattedError.message}`, 'error');
   } finally {
     // Réactiver le bouton une fois l'analyse terminée
     button.disabled = false;
@@ -337,10 +326,6 @@ async function continuePollingFromPopup(jobId) {
 async function addToReportsHistory(report) {
   try {
     const { reportsHistory = [] } = await chrome.storage.local.get(['reportsHistory']);
-
-    console.log('[Clear Terms] 📚 Ajout au reportsHistory...');
-    console.log('[Clear Terms] Historique actuel:', reportsHistory.length, 'rapports');
-    console.log('[Clear Terms] Nouveau rapport:', report.site_name);
 
     // Créer l'entrée d'historique
     const historyEntry = {
@@ -359,9 +344,8 @@ async function addToReportsHistory(report) {
 
     // Sauvegarder
     await chrome.storage.local.set({ reportsHistory });
-    console.log('[Clear Terms] ✅ Rapport ajouté à l\'historique. Total:', reportsHistory.length);
 
   } catch (error) {
-    console.error('[Clear Terms] ❌ Erreur lors de l\'ajout au reportsHistory:', error);
+    // Erreur silencieuse
   }
 }

@@ -14,7 +14,6 @@ function extractCleanContent() {
 
     // Vérifier que le clone a un body
     if (!clone.body) {
-      console.error('[Clear Terms] Erreur: clone.body est null');
       return {
         text: document.body ? (document.body.textContent || '') : '',
         url: window.location.href
@@ -52,7 +51,6 @@ function extractCleanContent() {
 
     // Vérifier à nouveau que clone.body existe après les suppressions
     if (!clone.body) {
-      console.error('[Clear Terms] Erreur: clone.body est devenu null après suppressions');
       return {
         text: document.body ? (document.body.textContent || '').replace(/\s+/g, ' ').trim() : '',
         url: window.location.href
@@ -65,12 +63,17 @@ function extractCleanContent() {
     // Nettoyer les espaces multiples et sauts de ligne excessifs
     let cleanedText = text.replace(/\s+/g, ' ').trim();
 
+    // Limiter la taille du contenu pour éviter les erreurs backend (max 100KB)
+    const MAX_CONTENT_LENGTH = 95000;
+    if (cleanedText.length > MAX_CONTENT_LENGTH) {
+      cleanedText = cleanedText.substring(0, MAX_CONTENT_LENGTH);
+    }
+
     return {
       text: cleanedText,
       url: window.location.href
     };
   } catch (error) {
-    console.error('[Clear Terms] Erreur dans extractCleanContent:', error);
     return {
       text: document.body ? (document.body.textContent || '').replace(/\s+/g, ' ').trim() : '',
       url: window.location.href

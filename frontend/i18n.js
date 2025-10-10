@@ -19,6 +19,17 @@ const translations = {
     statusError: "Erreur :",
     notCGUPage: "Cette page ne contient pas de conditions générales ou de mentions légales analysables.",
 
+    // Messages d'erreur (pour référence - gérés par error-handler.js)
+    errorNetwork: "Impossible de se connecter au serveur. Vérifiez votre connexion internet.",
+    errorBackend: "Le service d'analyse est temporairement indisponible.",
+    errorContentScript: "Impossible d'accéder au contenu de la page. Rechargez la page et réessayez.",
+    errorTooLarge: "Le contenu de la page est trop volumineux pour être analysé.",
+    errorTimeout: "L'analyse prend trop de temps. Le serveur est peut-être surchargé.",
+    errorProtected: "Cette page est protégée et ne peut pas être analysée.",
+    errorInvalidResponse: "La réponse du serveur est invalide.",
+    errorTooShort: "Le contenu de la page est trop court pour être analysé.",
+    errorGeneric: "Une erreur inattendue est survenue.",
+
     // Rapport
     analyzedOn: "Analysé le",
     scoreLabel: "Score",
@@ -198,6 +209,17 @@ const translations = {
     statusComplete: "Analysis complete!",
     statusError: "Error:",
     notCGUPage: "This page does not contain analyzable terms of service or legal notices.",
+
+    // Error messages (for reference - handled by error-handler.js)
+    errorNetwork: "Cannot connect to server. Check your internet connection.",
+    errorBackend: "Analysis service is temporarily unavailable.",
+    errorContentScript: "Cannot access page content. Reload the page and try again.",
+    errorTooLarge: "Page content is too large to analyze.",
+    errorTimeout: "Analysis is taking too long. Server may be overloaded.",
+    errorProtected: "This page is protected and cannot be analyzed.",
+    errorInvalidResponse: "Server response is invalid.",
+    errorTooShort: "Page content is too short to analyze.",
+    errorGeneric: "An unexpected error occurred.",
 
     // Report
     analyzedOn: "Analyzed on",

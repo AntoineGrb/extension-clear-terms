@@ -33,14 +33,12 @@ async function loadReports() {
     allReports = reportsHistory;
     filteredReports = [...allReports];
 
-    console.log('[History] Rapports chargés:', allReports.length);
-
     // Afficher les rapports
     renderReports();
     updateReportCount();
 
   } catch (error) {
-    console.error('[History] Erreur lors du chargement:', error);
+    // Erreur silencieuse
   }
 }
 
@@ -334,10 +332,8 @@ async function clearHistory() {
     renderReports();
     updateReportCount();
 
-    console.log('[History] ✅ Historique supprimé');
-
   } catch (error) {
-    console.error('[History] ❌ Erreur lors de la suppression:', error);
+    // Erreur silencieuse
   }
 }
 
@@ -506,8 +502,6 @@ function exportToCSV() {
 
   // Télécharger le fichier
   downloadFile(csvContent, 'clear-terms-export.csv', 'text/csv');
-
-  console.log('[History] ✅ Export CSV réussi');
 }
 
 // ========================================
@@ -536,8 +530,6 @@ function exportToJSON() {
 
   // Télécharger le fichier
   downloadFile(jsonContent, 'clear-terms-export.json', 'application/json');
-
-  console.log('[History] ✅ Export JSON réussi');
 }
 
 // ========================================

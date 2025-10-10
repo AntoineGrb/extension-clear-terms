@@ -53,5 +53,3 @@ if (document.readyState === 'loading') {
   // Attendre quand même pour les SPAs et lazy loading
   setTimeout(detectAndAnalyze, 1000);
 }
-
-console.log('[Clear Terms] Content script chargé ✓');

@@ -10,6 +10,7 @@ backend/schema.json
 node_modules/
 backend/node_modules/
 frontend/node_modules/
+frontend/error/error-testing-guide.md
 
 # OS files
 .DS_Store
