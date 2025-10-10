@@ -1,4 +1,4 @@
-const { cleanText, calculateHash } = require('../utils/text-processing');
+const { cleanText, calculateUrlHash } = require('../utils/text-processing');
 const { loadPromptTemplate, callGemini } = require('../utils/gemini');
 
 /**
@@ -11,21 +11,23 @@ async function processJob(jobId, jobs, cache, primaryModel, fallbackModels, apiK
   try {
     job.status = 'running';
 
-    const { content, userLanguage } = job;
+    const { url, content, userLanguage } = job;
     const cleanedContent = cleanText(content);
-    const contentHash = calculateHash(cleanedContent);
 
-    console.log(`📊 [JOB ${jobId}] Hash calculé: ${contentHash.substring(0, 16)}...`);
-    console.log(`📏 [JOB ${jobId}] Longueur contenu nettoyé: ${cleanedContent.length} caractères`);
+    // Calculer le hash basé sur l'URL (pas le contenu)
+    const urlHash = calculateUrlHash(url);
+
+    console.log(`🔗 [JOB ${jobId}] URL: ${url}`);
+    console.log(`📊 [JOB ${jobId}] Hash URL: ${urlHash.substring(0, 16)}...`);
     console.log(`🌍 [JOB ${jobId}] Langue demandée: ${userLanguage}`);
 
-    // Vérifier le cache pour cette langue spécifique
-    if (cache.has(contentHash)) {
-      const cachedEntry = cache.get(contentHash);
+    // Vérifier le cache pour cette URL et cette langue
+    if (cache.has(urlHash)) {
+      const cachedEntry = cache.get(urlHash);
 
       // Si le rapport dans la langue demandée existe déjà
       if (cachedEntry.reports && cachedEntry.reports[userLanguage]) {
-        console.log(`📦 Rapport ${userLanguage.toUpperCase()} trouvé en cache pour hash: ${contentHash.substring(0, 8)}...`);
+        console.log(`📦 Rapport ${userLanguage.toUpperCase()} trouvé en cache pour URL: ${url}`);
         job.result = cachedEntry.reports[userLanguage];
         job.status = 'done';
         return;
@@ -85,11 +87,7 @@ YOU MUST WRITE ALL YOUR ANALYSIS COMMENTS ("comment" FIELDS IN THE JSON) IN ${la
       }
 
       report = JSON.parse(jsonText);
-
-      // Logger la structure reçue pour debug
-      console.log('📋 Réponse Gemini parsée avec succès');
-      console.log('📊 Champs présents:', Object.keys(report));
-      console.log('📄 Rapport complet:', JSON.stringify(report, null, 2));
+      // console.log('📄 Rapport complet:', JSON.stringify(report, null, 2));
 
     } catch (error) {
       console.error('❌ Réponse Gemini invalide (500 premiers caractères):', aiResponse.substring(0, 500));
@@ -107,27 +105,30 @@ YOU MUST WRITE ALL YOUR ANALYSIS COMMENTS ("comment" FIELDS IN THE JSON) IN ${la
 
     // Ajouter des métadonnées
     report.metadata = {
-      content_hash: contentHash,
+      url_hash: urlHash,
       analyzed_at: new Date().toISOString(),
       analyzed_url: job.url || 'unknown',
       model_used: primaryModel,
       output_language: userLanguage
     };
 
-    // Mettre en cache avec structure multilingue
-    if (cache.has(contentHash)) {
+    // Mettre en cache avec structure multilingue (basé sur URL)
+    if (cache.has(urlHash)) {
       // Ajouter la nouvelle langue au cache existant
-      const existing = cache.get(contentHash);
+      const existing = cache.get(urlHash);
       existing.reports[userLanguage] = report;
+      console.log(`💾 Rapport ${userLanguage.toUpperCase()} ajouté au cache existant pour: ${url}`);
     } else {
       // Créer une nouvelle entrée cache
-      cache.set(contentHash, {
+      cache.set(urlHash, {
+        url: url,
         domain: job.url ? new URL(job.url).hostname : 'unknown',
         reports: {
           [userLanguage]: report
         },
         createdAt: new Date().toISOString()
       });
+      console.log(`💾 Nouvelle entrée cache créée pour: ${url}`);
     }
 
     job.result = report;

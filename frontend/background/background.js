@@ -8,19 +8,6 @@ const MAX_POLL_ATTEMPTS = 60;
 console.log('🚀 Clear Terms Service Worker démarré');
 
 /**
- * Calcule le hash SHA-256 d'un contenu
- * Pour debug et vérification de cohérence cache
- */
-async function calculateHash(content) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(content);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return hashHex;
-}
-
-/**
  * Détecte la langue du navigateur
  */
 function detectBrowserLanguage() {
@@ -35,10 +22,6 @@ function detectBrowserLanguage() {
 async function handleAutoAnalysis(url, content, tabId) {
   try {
     console.log('🔍 Analyse automatique lancée pour:', url);
-
-    // NOUVEAU : Calculer et logger le hash pour debug
-    const contentHash = await calculateHash(content);
-    console.log('📊 [AUTO] Hash du contenu:', contentHash);
     console.log('📏 [AUTO] Longueur du contenu:', content.length, 'caractères');
 
     // Toujours détecter automatiquement la langue du navigateur

@@ -21,7 +21,7 @@ const FALLBACK_MODELS = [
 
 // Stockage en mémoire pour le MVP (jobs et cache)
 const jobs = new Map(); // job_id -> { status, url, result, error, createdAt }
-const cache = new Map(); // content_hash -> report
+const cache = new Map(); // url_hash -> { url, domain, reports: { fr: {}, en: {} }, createdAt }
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -113,17 +113,17 @@ app.get('/jobs/:id', (req, res) => {
 
 /**
  * GET /report
- * Recherche dans le cache par hash de contenu
- * Query: ?hash=xxx&lang=fr|en
+ * Recherche dans le cache par hash d'URL
+ * Query: ?url_hash=xxx&lang=fr|en
  */
 app.get('/report', (req, res) => {
-  const { hash, lang } = req.query;
+  const { url_hash, lang } = req.query;
 
-  if (!hash) {
-    return res.status(400).json({ error: 'Le paramètre "hash" est requis' });
+  if (!url_hash) {
+    return res.status(400).json({ error: 'Le paramètre "url_hash" est requis' });
   }
 
-  const cachedEntry = cache.get(hash);
+  const cachedEntry = cache.get(url_hash);
 
   if (!cachedEntry) {
     return res.status(404).json({ error: 'Rapport non trouvé en cache' });
