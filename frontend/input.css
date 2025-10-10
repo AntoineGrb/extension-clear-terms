@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Google Fonts */
+body {
+  font-family: 'DM Sans', sans-serif;
+}
+
+h1 {
+  font-family: 'Manrope', sans-serif;
+}
+
 /* Custom scrollbar */
 @layer utilities {
   .scrollbar-thin::-webkit-scrollbar {
